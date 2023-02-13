@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 
-def process_king_transit():
+def process_king_country_metro():
     """Process 2022 park & ride data from King County Metro."""
 
     print('Begin processing King County Metro park & ride data.')
