@@ -34,7 +34,6 @@ def process_sound_transit():
         # Create column of avg occupied spaces; recode service_type; add agency column
         df = df.assign(occupied_spaces=df.loc[:, ['tuesday', 'wednesday', 'thursday']].mean(axis=1).round(0))
         df['service_type'] = np.where(df['service_type'].str.contains('^leas', case=False, regex=True), 'leased', 'owned')
-        df.insert(0, 'agency', 'Sound Transit')
 
         # Subset df to only needed columns
         df = df.loc[:, ['location', 'service_type', 'address', 'capacity', 'occupied_spaces']]
