@@ -26,11 +26,11 @@ def process_king_country_metro():
     # Create 'agency' column with county name as values
     df.insert(0, 'agency', 'king')
 
-    # add column for ownership_status
+    # Add column for ownership_status
     df['owner_status'] = ''
     df['address'] = ''
 
-    # just to make sure all are lowercase
+    # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()
 
     print('All done.')
