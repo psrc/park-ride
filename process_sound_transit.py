@@ -18,11 +18,11 @@ def process_sound_transit():
     
     # Loop through monthly files in folder and join months one by one
     processed = pd.DataFrame()
-    for i, j in enumerate(dir_list):
-        if 'oct' in j.lower():
-            df = pd.read_excel(io=file_path + dir_list[i], header=1, skipfooter=3)
+    for i in dir_list:
+        if 'oct' in i.lower():
+            df = pd.read_excel(io=file_path + i, header=1, skipfooter=3)
         else:
-            df = pd.read_excel(io=file_path + dir_list[i], skipfooter=4)
+            df = pd.read_excel(io=file_path + i, skipfooter=4)
             
         month = list(df.columns.values)
         month = month[2][:3].lower()
