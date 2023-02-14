@@ -38,8 +38,8 @@ def process_kitsap_transit():
     df = df.round({'occupied_spaces':0})
     df = df.assign(utilization=df['occupied_spaces']/df['total_spaces'])
 
-    # Create 'agency' column with county name as values
-    df.insert(0, 'agency', 'kitsap')
+    # Create 'agency' column with agency name as values
+    df.insert(0, 'agency', 'Kitsap Transit')
     
     print('All done.')
     return df
