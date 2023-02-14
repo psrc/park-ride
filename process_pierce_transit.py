@@ -51,7 +51,7 @@ def process_pierce_transit():
     df['address'] = ''
 
     # Create 'agency' column with county name as values
-    df.insert(0, 'agency', 'pierce transit')
+    df.insert(0, 'agency', 'Pierce Transit')
 
     # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()

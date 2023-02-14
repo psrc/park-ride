@@ -3,9 +3,9 @@ import os
 
 
 def process_king_country_metro():
-    """Process 2022 park & ride data from King County Metro."""
+    """Process 2022 park & ride data from King County Metro Transit."""
 
-    print('Begin processing King County Metro park & ride data.')
+    print('Begin processing King County Metro Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
     file_path = 'J:/Projects/Surveys/ParkRide/Data/2022/King County/'
@@ -24,7 +24,7 @@ def process_king_country_metro():
     df = df.assign(utilization=df['occupied_spaces']/df['total_spaces'])
 
     # Create 'agency' column with county name as values
-    df.insert(0, 'agency', 'king')
+    df.insert(0, 'agency', 'King County Metro Transit')
 
     # Add column for ownership_status
     df['owner_status'] = ''

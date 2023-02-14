@@ -42,7 +42,7 @@ def process_community_transit():
     # df['occupied_spaces'] = df['occupied_spaces'].astype(float)
 
     # Create 'agency' column with county name as values
-    df.insert(0, 'agency', 'community transit')
+    df.insert(0, 'agency', 'Community Transit')
 
     # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()
