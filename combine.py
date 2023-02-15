@@ -3,6 +3,7 @@ from process_king_county_metro import process_king_county_metro
 from process_kitsap_transit import process_kitsap_transit
 from process_pierce_transit import process_pierce_transit
 from process_sound_transit import process_sound_transit
+
 import numpy as np
 import pandas as pd
 import os
@@ -26,8 +27,10 @@ output = pd.concat([process_community_transit(),
 # Find any overlapping entries, prioritize agencies before Sount Transit
 output2 = output.sort_values(by=['name'])
 
+output2['name'] = output2['name'].map(lambda x: x.strip())
+
 # Selecting duplicate rows
-duplicate = output2[output2.duplicated('name')]
+duplicate = output2[output2.duplicated('name', keep=False)]
 
 print("Duplicate Rows :")
 
