@@ -26,14 +26,17 @@ def process_combining_agency_data():
                           process_sound_transit()])
 
     # Sorting data and removing leading/trailing spaces
+    global output
     output = combined.sort_values(by=['name'])
     output['name'] = output['name'].map(lambda x: x.strip())
 
     # Find overlapping entries, prioritize agencies before Sount Transit
     # Selecting duplicate rows
+    global duplicate
     duplicate = output[output.duplicated('name', keep=False)]
 
     # Remove Sound Transit lots within overlap dataframe
+    global duplicate2
     duplicate2 = duplicate[duplicate.agency == "Sound Transit"]
 
     # Merge full dataset, removing Sound Tranist duplicates
