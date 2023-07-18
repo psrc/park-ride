@@ -64,6 +64,8 @@ df_names = pd.read_sql(sql='select * from park_and_ride.lot_dim', con=sql_conn)
 output2.columns.to_list()  # name
 df_names.columns.to_list()  # lot_name
 
-# merge data frames
+# merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
 lots_merge22 = pd.merge(df_names, output2, left_on='lot_name',
                         right_on='name', how="right")
+
+check = lots_merge22[lots_merge22['lot_name'].isnull()]
