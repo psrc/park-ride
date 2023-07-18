@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import pyodbc  # for Elmer connection
 
 # working directory
 # print(os.getcwd())
@@ -46,3 +47,23 @@ def process_combining_agency_data():
 
     print('Dataframe generated.')
     # return output2
+
+
+process_combining_agency_data()
+
+conn_string = conn_str = (
+    r'Driver=SQL Server;'
+    r'Server=AWS-Prod-SQL\Sockeye;'
+    r'Database=Elmer;'
+    r'Trusted_Connection=yes;'
+)
+sql_conn = pyodbc.connect(conn_string)
+df_names = pd.read_sql(sql='select * from park_and_ride.lot_dim', con=sql_conn)
+
+# check_names of columns for join/merge
+output2.columns.to_list()  # name
+df_names.columns.to_list()  # lot_name
+
+# merge data frames
+lots_merge22 = pd.merge(df_names, output2, left_on='lot_name',
+                        right_on='name', how="right")
