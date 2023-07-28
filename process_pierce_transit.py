@@ -118,7 +118,8 @@ def clean_names_pierce_transit():
                                    how="right")
 
     # remove lots that are in master and do not match in Pierce data - this step is for checking lots
-    # maybe_new_lots = pierce_lots_merge22[pierce_lots_merge22['lot_name'].isnull()]
+    maybe_new_lots = pierce_lots_merge22[pierce_lots_merge22['lot_name'].isnull(
+    )]
 
     print('Renaming lots with inconsistent names')
     # rename 11 'new' lots - those in the new data set that don't match the master list

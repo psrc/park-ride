@@ -4,8 +4,8 @@ import numpy as np
 import pyodbc  # for Elmer connection
 
 # working directory
-# print(os.getcwd())
-# os.chdir("C:\\Users\\mrichards\\Documents\\GitHub\\park-ride")
+print(os.getcwd())
+os.chdir("C:\\Users\\mrichards\\Documents\\GitHub\\park-ride")
 
 
 def process_combining_agency_data():
@@ -16,14 +16,14 @@ def process_combining_agency_data():
     from process_community_transit import process_community_transit
     from process_king_county_metro import process_king_county_metro
     from process_kitsap_transit import process_kitsap_transit
-    from process_pierce_transit import process_pierce_transit
+    from process_pierce_transit import clean_names_pierce_transit
     from process_sound_transit import process_sound_transit
 
     # Combine data from agencies
     combined = pd.concat([process_community_transit(),
                           process_king_county_metro(),
                           process_kitsap_transit(),
-                          process_pierce_transit(),
+                          clean_names_pierce_transit(),
                           process_sound_transit()])
 
     # Sorting data and removing leading/trailing spaces
