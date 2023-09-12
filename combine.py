@@ -69,3 +69,35 @@ lots_merge22 = pd.merge(df_names, output2, left_on='lot_name',
                         right_on='name', how="right")
 
 check = lots_merge22[lots_merge22['lot_name'].isnull()]
+
+# 22 lots from Sound Transit that don't line up with master list
+# some of these are counted for in the other agencies - need to check against df_names
+check['street_address_check'] = check.apply(
+    lambda x: x['address'][0:x['address'].find(',')], axis=1)
+
+check_address = pd.merge(df_names, check, left_on='lot_name',
+                         right_on='street_address_check', how="right")
+
+# Sound Transit lots to check
+# Auburn Garage: Sound Transit
+# Auburn Station: Sound Transit
+# Auburn Surface Parking Lot: Sound Transit
+# Bonney Lake: check
+# DuPont: check
+# Eastmont: check
+# Edmonds Salish Crossings: check
+# Federal Way TC: Sound Transit
+# Issaquah TC
+# Kent Garage
+# Kent Station
+# Kent Surface Parking Lot
+# Lynnwood TC
+# Mercer Island
+# Puyallup Red Lot (Fairgrounds)
+# Puyallup Station
+# South Bellevue
+# South Hill
+# Sumner Station
+# Tacoma Dome Station Garage
+# Tukwila Station
+# Tukwila Station (TIBS)

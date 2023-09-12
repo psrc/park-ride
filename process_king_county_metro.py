@@ -19,10 +19,10 @@ def process_king_county_metro():
     # Generate year averages from monthly/quarterly values
     df = df.groupby(['Name'], as_index=False).agg(total_spaces=('Total Capacity (# of stalls)', 'mean'),
                                                   occupied_spaces=('Mthly - Veh Count', 'mean'))
-    
+
     # Remove (KC) from names
     df['Name'] = df['Name'].str.replace(r'\(KC\)', '', regex=True).str.strip()
-    
+
     # Fix church names
     df['Name'] = df['Name'].str.replace(r'^(St)', 'St.', regex=True)
 
@@ -72,15 +72,16 @@ def clean_names_king_county_metro():
 
     # join so that lots have capacity numbers for checking against new data
     master_df = pd.merge(master_dim_df, master_facts_df,
-                          left_on='lot_dim_id', right_on='lot_dim_id',
-                          how="inner")
+                         left_on='lot_dim_id', right_on='lot_dim_id',
+                         how="inner")
     # master_df2 = master_df.drop_duplicates(subset=['lot_dim_id'])
 
     # print names of columns in master dataframe
     # print(master_df.columns.tolist())
 
     # remove lots from Sound Transit
-    king_master = master_df[master_df['maintainer_agency'].isin(['King County Metro Transit'])]
+    king_master = master_df[master_df['maintainer_agency'].isin(
+        ['King County Metro Transit'])]
 
     # merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
     king_lots_merge22 = pd.merge(king_master, king_data,
@@ -100,13 +101,14 @@ def clean_names_king_county_metro():
                                                     'Church by the Side of the Road (THE)': 'Church by the Side of the Road',
                                                     'Duvall': 'Duvall P&R',
                                                     'East Hill Friends': 'East Hill Friends Church',
-                                                    'Eastgate (Garage)': 'Eastgate P&R', # combine garage with Eastgate P&R
+                                                    # combine garage with Eastgate P&R
+                                                    'Eastgate (Garage)': 'Eastgate P&R',
                                                     'Federal Way / S 320th Street P&R': 'Federal Way/S 320th St',
                                                     'Greenlake / I-5 & 65th St.': 'Greenlake (I-5/NE 65th St)',
                                                     'Issaquah Highlands': 'Issaquah Highlands P&R',
                                                     'Kent / Des Moines': 'Kent/Des Moines',
                                                     'Kent / James Street': 'Kent/James Street',
-                                                    'Kingsgate P&R': 'Kingsgate P&R',
+                                                    'Kingsgate P&R (WSDOT)': 'Kingsgate P&R',
                                                     'Kirkland Way': 'SR 908/Kirkland Way',
                                                     'Lake Meridian': 'Lake Meridian/East Kent',
                                                     'New Life Church @ Renton': 'New Life Church',
@@ -121,20 +123,24 @@ def clean_names_king_county_metro():
                                                     'SW Spokane': 'SW Spokane St',
                                                     'Shoreline': 'Shoreline P&R',
                                                     'South Federal Way': 'South Federal Way P&R',
-                                                    'South Kirkland (Garage)': 'South Kirkland P&R', # combine garage and surface
-                                                    'South Kirkland (Surface)': 'South Kirkland P&R', # combine garage and surface
+                                                    # combine garage and surface
+                                                    'South Kirkland (Garage)': 'South Kirkland P&R',
+                                                    # combine garage and surface
+                                                    'South Kirkland (Surface)': 'South Kirkland P&R',
                                                     'South Sammamish': 'South Sammamish P&R',
+                                                    'St. Luke\'s Lutheran Church - Federal Way': 'St. Luke\'s Lutheran Church-Federal Way',
                                                     'The Vine Church (formerly Bethany Bible)': 'The Vine Church',
                                                     'Tibbetts Valley Park': 'Tibbett\'s Valley Park',
                                                     'Tukwila': 'Tukwila P&R'}
                                            })
-    
+
     # group by name and recalculate/rebuild
     king_data_renamed = king_data_renamed.groupby(['name'], as_index=False).agg(
         total_spaces=('total_spaces', 'sum'),
         occupied_spaces=('occupied_spaces', 'sum'))
-    
-    king_data_renamed = king_data_renamed.assign(utilization=king_data_renamed['occupied_spaces']/king_data_renamed['total_spaces'])
+
+    king_data_renamed = king_data_renamed.assign(
+        utilization=king_data_renamed['occupied_spaces']/king_data_renamed['total_spaces'])
 
     # Create 'agency' column with county name as values
     king_data_renamed.insert(0, 'agency', 'King County Metro Transit')
