@@ -49,55 +49,78 @@ def process_combining_agency_data():
     # return output2
 
 
-process_combining_agency_data()
+def clean_names_sound_transit():
+    """Clean names of 2022 park & ride lots from Sound Transit to match master data."""
 
-conn_string = conn_str = (
-    r'Driver=SQL Server;'
-    r'Server=AWS-Prod-SQL\Sockeye;'
-    r'Database=Elmer;'
-    r'Trusted_Connection=yes;'
-)
-sql_conn = pyodbc.connect(conn_string)
-df_names = pd.read_sql(sql='select * from park_and_ride.lot_dim', con=sql_conn)
+    print('Begin renaming process for aligning Sound Transit park & ride data.')
 
-# check_names of columns for join/merge
-output2.columns.to_list()  # name
-df_names.columns.to_list()  # lot_name
+    process_combining_agency_data()
 
-# merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
-lots_merge22 = pd.merge(df_names, output2, left_on='lot_name',
-                        right_on='name', how="right")
+    conn_string = conn_str = (
+        r'Driver=SQL Server;'
+        r'Server=AWS-Prod-SQL\Sockeye;'
+        r'Database=Elmer;'
+        r'Trusted_Connection=yes;'
+    )
 
-check = lots_merge22[lots_merge22['lot_name'].isnull()]
+    sql_conn = pyodbc.connect(conn_string)
 
-# 22 lots from Sound Transit that don't line up with master list
-# some of these are counted for in the other agencies - need to check against df_names
-check['street_address_check'] = check.apply(
-    lambda x: x['address'][0:x['address'].find(',')], axis=1)
+    # dim table
+    master_dim_df = pd.read_sql(
+        sql='select * from park_and_ride.lot_dim', con=sql_conn)
 
-check_address = pd.merge(df_names, check, left_on='lot_name',
-                         right_on='street_address_check', how="right")
+    # facts table
+    master_facts_df = pd.read_sql(
+        sql='select * from park_and_ride.park_and_ride_facts', con=sql_conn)
 
-# Sound Transit lots to check
-# Auburn Garage: Sound Transit
-# Auburn Station: Sound Transit
-# Auburn Surface Parking Lot: Sound Transit
-# Bonney Lake: check
-# DuPont: check
-# Eastmont: check
-# Edmonds Salish Crossings: check
-# Federal Way TC: Sound Transit
-# Issaquah TC
-# Kent Garage
-# Kent Station
-# Kent Surface Parking Lot
-# Lynnwood TC
-# Mercer Island
-# Puyallup Red Lot (Fairgrounds)
-# Puyallup Station
-# South Bellevue
-# South Hill
-# Sumner Station
-# Tacoma Dome Station Garage
-# Tukwila Station
-# Tukwila Station (TIBS)
+    # join so that lots have capacity numbers for checking against new data
+    master_df = pd.merge(master_dim_df, master_facts_df,
+                         left_on='lot_dim_id', right_on='lot_dim_id',
+                         how="inner")
+
+    # check_names of columns for join/merge
+    output2.columns.to_list()  # name
+    master_dim_df.columns.to_list()  # lot_name
+
+    # merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
+    lots_merge22 = pd.merge(master_df, output2, left_on='lot_name',
+                            right_on='name', how="right")
+
+    lots_check = lots_merge22[lots_merge22['lot_name'].isnull()]
+    # 25 lots from Sound Transit that don't line up with master list - requires checking before can resolve
+
+    # edit data to fix Sound Transit issues
+    # sound_data_renamed = output2({'name': {'72nd St. Transit Center': '72nd St Transit Center',
+    #                                        'Bonney Lake (SR410)': 'Bonney Lake South (SR 410)'}})
+
+
+# ISSUES -------------
+
+# within Sound Transit data ..................
+# Auburn Station - combined from surface parking lot and auburn garage, does not exist in master so can be removed from ST
+# DuPont: belongs to Pierce Transit - remove from Sound Transit
+# Eastmont: belongs to Community Transit - remove from Sound Transit
+# 'Edmonds Salish Crossings': new lot
+# 'Federal Way TC': 'Federal Way Transit Center'
+# Kent Station: combination of Kent Garage and Kent Surface Parking Lot - remove from Sound Transit
+# Puyallup Red Lot (Fairgrounds): belongs to Pierce Transit - remove from Sound Transit
+# Puyallup Station: Puyallup Train Station is the same lot and belongs to Pierce Transit - remove from Sound Transit
+# South Hill: belongs to Pierce Transit as South Hill P&R - remove from Sound Transit
+# Sumner Station: belongs to Pierce Transit as Sumner Train Station - remove from Sound Transit
+# Tacoma Dome Station Garage: belongs to Pierce Transit as Tacoma Dome Station - remove from Sound Transit
+
+
+# requires change in other agency and ST ..................
+# 'Auburn Garage': 'Auburn Garage at Auburn Station' - King County listed as maintainer in master, but listed in ST 2022/21/20 and not in King 2022/21/20, was listed by King in 2019 - may need to switch maintainer agency in 2020 and add ST data 2020-22
+# 'Auburn Surface Parking Lot': 'Auburn Surface lot at Auburn Station' - King County listed as maintainer in master, but listed in ST 2022/21/20 and not in King 2022/21/20, was listed by King in 2019 - may need to switch maintainer agency in 2020 and add ST data 2020-22
+# Bonney Lake: need to remove from Pierce Transit data set because switched ownership to Sound Transit in 2012
+# 'Issaquah TC': 'Issaquah Transit Center' - King County reported through 2021, Sound Transit also reported, but in 2022 King County did not report while Sound Transit did - need to add from Sound Transit, switch maintainer in master for 2022
+# Kent Garage: King County listed in master as maintainer but didn't report in 2020/21, but did report in 2019; Sound Transit reported in 2020 and 2021 - may need to switch maintainer agency and maybe adjust 2020/2021 numbers to reflect ST
+# Mercer Island: King County listed as maintainer in master but didn't report in 2022, did report in 2021; Sound Transit reported in 2022/21 - need to add from Sound Transit, switch maintainer in master for 2022
+
+# to discuss ..................
+# Kent Surface Parking Lot: King County listed as maintainer in master but didn't report in 2022/21/20 but did report in 2019 with ST listed as owner, listed in ST data in 2022/21/20/19 - should we switch the maintainer to ST in 2020 or earlier?
+# Lynnwood TC: Community Transit listed as maintainer in master, but capacity # in master matches Sound Transit 2022 record (1398) more closesly than 2022 Community Transit # (595) - reported in ST in 2021 with 1300, reported in CT in 2021 with 600
+# South Bellevue: King County listed in master as maintainer but did not report in 2022/21/20 but reported in 2019; Sound Transit reported in 2022/21 - will need to add to master for 2021 and 2022 under ST, not online in 2020
+# Tukwila Station: 'Tukwila Sounder Station' - King County listed as maintainer in master, but listed in ST in 2019/20/21/22 data not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
+# 'Tukwila Station (TIBS)': 'Tukwila International Blvd Station' - King County listed in maintainer as master, but listed in ST data in 2019/20/21/22 not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
