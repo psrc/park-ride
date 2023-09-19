@@ -117,10 +117,11 @@ def clean_names_sound_transit():
 # 'Issaquah TC': 'Issaquah Transit Center' - King County reported through 2021, Sound Transit also reported, but in 2022 King County did not report while Sound Transit did - need to add from Sound Transit, switch maintainer in master for 2022
 # Kent Garage: King County listed in master as maintainer but didn't report in 2020/21, but did report in 2019; Sound Transit reported in 2020 and 2021 - may need to switch maintainer agency and maybe adjust 2020/2021 numbers to reflect ST
 # Mercer Island: King County listed as maintainer in master but didn't report in 2022, did report in 2021; Sound Transit reported in 2022/21 - need to add from Sound Transit, switch maintainer in master for 2022
+# Tukwila Station: 'Tukwila Sounder Station' - King County listed as maintainer in master, but listed in ST in 2019/20/21/22 data not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
+# 'Tukwila Station (TIBS)': 'Tukwila International Blvd Station' - King County listed in maintainer as master, but listed in ST data in 2019/20/21/22 not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
+
 
 # to discuss ..................
 # Kent Surface Parking Lot: King County listed as maintainer in master but didn't report in 2022/21/20 but did report in 2019 with ST listed as owner, listed in ST data in 2022/21/20/19 - should we switch the maintainer to ST in 2020 or earlier?
 # Lynnwood TC: Community Transit listed as maintainer in master, but capacity # in master matches Sound Transit 2022 record (1398) more closesly than 2022 Community Transit # (595) - reported in ST in 2021 with 1300, reported in CT in 2021 with 600
 # South Bellevue: King County listed in master as maintainer but did not report in 2022/21/20 but reported in 2019; Sound Transit reported in 2022/21 - will need to add to master for 2021 and 2022 under ST, not online in 2020
-# Tukwila Station: 'Tukwila Sounder Station' - King County listed as maintainer in master, but listed in ST in 2019/20/21/22 data not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
-# 'Tukwila Station (TIBS)': 'Tukwila International Blvd Station' - King County listed in maintainer as master, but listed in ST data in 2019/20/21/22 not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
