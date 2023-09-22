@@ -90,8 +90,20 @@ def clean_names_sound_transit():
     # 25 lots from Sound Transit that don't line up with master list - requires checking before can resolve
 
     # edit data to fix Sound Transit issues
-    # sound_data_renamed = output2({'name': {'72nd St. Transit Center': '72nd St Transit Center',
-    #                                        'Bonney Lake (SR410)': 'Bonney Lake South (SR 410)'}})
+    sound_data_renamed = output2({'name': {'72nd St. Transit Center': '72nd St Transit Center',
+                                           'Auburn Garage': 'Auburn Garage at Auburn Station',
+                                           'Auburn Surface Parking Lot': 'Auburn Surface lot at Auburn Station',
+                                           'Bonney Lake': 'Bonney Lake South (SR 410)',
+                                           'Edmonds Salish Crossings': 'Edmonds Station Leased Lot Salish Crossings',
+                                           'Federal Way TC': 'Federal Way Transit Center',
+                                           'Issaquah TC': 'Issaquah Transit Center',
+                                           'Kent Garage': 'Kent Garage at Kent Station',
+                                           'Kent Surface Parking Lot': 'Kent Surface Lot at Kent Station',
+                                           'Lynnwood TC': 'Lynnwood Transit Center',
+                                           'Mercer Island': 'Mercer Island P&R',
+                                           'South Bellevue': 'South Bellevue P&R',
+                                           'Tukwila Station': 'Tukwila Sounder Station',
+                                           'Tukwila Station (TIBS)': 'Tukwila International Blvd Station'}})
 
 
 # ISSUES -------------
@@ -100,7 +112,7 @@ def clean_names_sound_transit():
 # Auburn Station - combined from surface parking lot and auburn garage, does not exist in master so can be removed from ST
 # DuPont: belongs to Pierce Transit - remove from Sound Transit
 # Eastmont: belongs to Community Transit - remove from Sound Transit
-# 'Edmonds Salish Crossings': new lot
+# 'Edmonds Salish Crossings': split from Edmonds Station beginning 2014 -> add/edit fact records
 # 'Federal Way TC': 'Federal Way Transit Center'
 # Kent Station: combination of Kent Garage and Kent Surface Parking Lot - remove from Sound Transit
 # Puyallup Red Lot (Fairgrounds): belongs to Pierce Transit - remove from Sound Transit
@@ -108,31 +120,3 @@ def clean_names_sound_transit():
 # South Hill: belongs to Pierce Transit as South Hill P&R - remove from Sound Transit
 # Sumner Station: belongs to Pierce Transit as Sumner Train Station - remove from Sound Transit
 # Tacoma Dome Station Garage: belongs to Pierce Transit as Tacoma Dome Station - remove from Sound Transit
-
-
-# requires change in other agency and ST ..................
-# 'Auburn Garage': 'Auburn Garage at Auburn Station' - King County listed as maintainer in master, but listed in ST 2022/21/20 and not in King 2022/21/20, was listed by King in 2019 - may need to switch maintainer agency in 2020 and add ST data 2020-22
-## Proposal: change maintainer in lot_dim record and add note in 2020 fact and/or dim record
-# 'Auburn Surface Parking Lot': 'Auburn Surface lot at Auburn Station' - King County listed as maintainer in master, but listed in ST 2022/21/20 and not in King 2022/21/20, was listed by King in 2019 - may need to switch maintainer agency in 2020 and add ST data 2020-22
-## Proposal: change maintainer in lot_dim record and add note in 2020 fact and/or dim record
-# Bonney Lake: need to remove from Pierce Transit data set because switched ownership to Sound Transit in 2012
-## Proposal: change maintainer in lot_dim record and add note in 2013 fact and/or dim record
-# 'Issaquah TC': 'Issaquah Transit Center' - King County reported through 2021, Sound Transit also reported, but in 2022 King County did not report while Sound Transit did - need to add from Sound Transit, switch maintainer in master for 2022
-## Proposal: change maintainer in lot_dim record and add note in 2022 fact and/or dim record
-# Kent Garage: King County listed in master as maintainer but didn't report in 2020/21, but did report in 2019; Sound Transit reported in 2020 and 2021 - may need to switch maintainer agency and maybe adjust 2020/2021 numbers to reflect ST
-## Proposal: change maintainer in lot_dim record and insert 2020, 2021 fact records; add note in 2020 fact and/or dim record
-# Mercer Island: King County listed as maintainer in master but didn't report in 2022, did report in 2021; Sound Transit reported in 2022/21 - need to add from Sound Transit, switch maintainer in master for 2022
-## Proposal: change maintainer in lot_dim record and add note in 2022 fact and/or dim record
-# Tukwila Station: 'Tukwila Sounder Station' - King County listed as maintainer in master, but listed in ST in 2019/20/21/22 data not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
-## Proposal: change maintainer in lot_dim record and add note in 2020 fact and/or dim record
-# 'Tukwila Station (TIBS)': 'Tukwila International Blvd Station' - King County listed in maintainer as master, but listed in ST data in 2019/20/21/22 not in King County in 2020/21/22 but was listed in 2019 - switch the maintainer in 2020 and add 2020/21/22 from ST
-## Proposal: change maintainer in lot_dim record and add note in 2020 fact and/or dim record
-
-
-# to discuss ..................
-# Kent Surface Parking Lot: King County listed as maintainer in master but didn't report in 2022/21/20 but did report in 2019 with ST listed as owner, listed in ST data in 2022/21/20/19 - should we switch the maintainer to ST in 2020 or earlier?
-## Proposal: change maintainer in lot_dim record and add note in 2020 fact and/or dim record
-# Lynnwood TC: Community Transit listed as maintainer in master, but capacity # in master matches Sound Transit 2022 record (1398) more closesly than 2022 Community Transit # (595) - reported in ST in 2021 with 1300, reported in CT in 2021 with 600
-## Google street view shows change in signage from CT (2019) to ST (2021); change maintainer in lot_dim and add note in 2021 fact and/or lot_dim record
-# South Bellevue: King County listed in master as maintainer but did not report in 2022/21/20 but reported in 2019; Sound Transit reported in 2022/21 - will need to add to master for 2021 and 2022 under ST, not online in 2020
-## Proposal: change maintainer in lot_dim record and insert fact records for 2021, 2022; add note in 2021 fact and/or dim record
