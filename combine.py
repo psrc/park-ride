@@ -112,7 +112,6 @@ def clean_names_sound_transit():
 # Auburn Station - combined from surface parking lot and auburn garage, does not exist in master so can be removed from ST
 # DuPont: belongs to Pierce Transit - remove from Sound Transit
 # Eastmont: belongs to Community Transit - remove from Sound Transit
-# 'Edmonds Salish Crossings': split from Edmonds Station beginning 2014 -> add/edit fact records
 # 'Federal Way TC': 'Federal Way Transit Center'
 # Kent Station: combination of Kent Garage and Kent Surface Parking Lot - remove from Sound Transit
 # Puyallup Red Lot (Fairgrounds): belongs to Pierce Transit - remove from Sound Transit
