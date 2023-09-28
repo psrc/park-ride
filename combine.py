@@ -46,7 +46,8 @@ def process_combining_agency_data():
         '_merge=="left_only"').drop('_merge', axis=1)
 
     print('Dataframe generated.')
-    # return output2
+
+    return output2
 
 
 def clean_names_sound_transit():
@@ -54,7 +55,7 @@ def clean_names_sound_transit():
 
     print('Begin renaming process for aligning Sound Transit park & ride data.')
 
-    process_combining_agency_data()
+    all_data_2022 = process_combining_agency_data()
 
     conn_string = conn_str = (
         r'Driver=SQL Server;'
@@ -89,22 +90,26 @@ def clean_names_sound_transit():
     lots_check = lots_merge22[lots_merge22['lot_name'].isnull()]
     # 25 lots from Sound Transit that don't line up with master list - requires checking before can resolve
 
-    # edit data to fix Sound Transit issues
-    sound_data_renamed = output2({'name': {'72nd St. Transit Center': '72nd St Transit Center',
-                                           'Auburn Garage': 'Auburn Garage at Auburn Station',
-                                           'Auburn Surface Parking Lot': 'Auburn Surface lot at Auburn Station',
-                                           'Bonney Lake': 'Bonney Lake South (SR 410)',
-                                           'Edmonds Salish Crossings': 'Edmonds Station Leased Lot Salish Crossings',
-                                           'Federal Way TC': 'Federal Way Transit Center',
-                                           'Issaquah TC': 'Issaquah Transit Center',
-                                           'Kent Garage': 'Kent Garage at Kent Station',
-                                           'Kent Surface Parking Lot': 'Kent Surface Lot at Kent Station',
-                                           'Lynnwood TC': 'Lynnwood Transit Center',
-                                           'Mercer Island': 'Mercer Island P&R',
-                                           'South Bellevue': 'South Bellevue P&R',
-                                           'Tukwila Station': 'Tukwila Sounder Station',
-                                           'Tukwila Station (TIBS)': 'Tukwila International Blvd Station'}})
+    # edit master data to fix Sound Transit issues
+    data_renamed = all_data_2022.replace(
+        {'name': {'Federal Way TC': 'Federal Way Transit Center'}})
 
+    # remove Sound Transit duplicates
+    final_data_2022 = data_renamed.drop(data_renamed[(data_renamed.agency == 'Sound Transit') &
+                                                     (data_renamed.name == 'Auburn Station') |
+                                                     (data_renamed.name == 'DuPont') |
+                                                     (data_renamed.name == 'Eastmont') |
+                                                     (data_renamed.name == 'Kent Station') |
+                                                     (data_renamed.name == 'Puyallup Red Lot (Fairgrounds)') |
+                                                     (data_renamed.name == 'Puyallup Station') |
+                                                     (data_renamed.name == 'South Hill') |
+                                                     (data_renamed.name == 'Sumner Station') |
+                                                     (data_renamed.name == 'Tacoma Dome Station Garage')].index)
+
+    return final_data_2022
+
+
+data_set = clean_names_sound_transit()
 
 # ISSUES -------------
 
@@ -112,7 +117,6 @@ def clean_names_sound_transit():
 # Auburn Station - combined from surface parking lot and auburn garage, does not exist in master so can be removed from ST
 # DuPont: belongs to Pierce Transit - remove from Sound Transit
 # Eastmont: belongs to Community Transit - remove from Sound Transit
-# 'Federal Way TC': 'Federal Way Transit Center'
 # Kent Station: combination of Kent Garage and Kent Surface Parking Lot - remove from Sound Transit
 # Puyallup Red Lot (Fairgrounds): belongs to Pierce Transit - remove from Sound Transit
 # Puyallup Station: Puyallup Train Station is the same lot and belongs to Pierce Transit - remove from Sound Transit
