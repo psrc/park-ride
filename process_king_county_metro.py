@@ -142,8 +142,9 @@ def clean_names_king_county_metro():
     # Create 'agency' column with county name as values
     king_data_renamed.insert(0, 'agency', 'King County Metro Transit')
 
-    # Add column for ownership_status
-    king_data_renamed['owner_status'] = ''
-    king_data_renamed['address'] = ''
+    # Add column for ownership_status, address, notes
+    king_data_renamed['owner_status'] = None
+    king_data_renamed['address'] = None
+    king_data_renamed['notes'] = None
 
     return king_data_renamed

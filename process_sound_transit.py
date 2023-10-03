@@ -62,8 +62,9 @@ def process_sound_transit():
                                                                 't_jul', 't_aug', 't_sep',
                                                                 't_oct', 't_nov', 't_dec']].mean(axis=1).round(0))
     
-    # Subset dataframe to needed columns for output; insert agency name
+    # Subset dataframe to needed columns for output; insert notes, agency name
     processed = processed.loc[:, ['name', 'owner_status', 'address', 'total_spaces', 'occupied_spaces']]
+    processed['notes'] = None
     processed.insert(0, 'agency', 'Sound Transit')
     
     print('All done.')

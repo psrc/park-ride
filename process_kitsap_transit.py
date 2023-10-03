@@ -39,6 +39,9 @@ def process_kitsap_transit():
 
     # Round decimal values to whole numbers
     df = df.round({'occupied_spaces':0})
+    
+    # Create notes column
+    df['notes'] = None
 
     # Create 'agency' column with agency name as values
     df.insert(0, 'agency', 'Kitsap Transit')

@@ -52,9 +52,10 @@ def process_pierce_transit():
     df['name'] = df['name'].replace(
         to_replace=r"[ \t]+$", value=r"", regex=True)  # remove trailing spaces
 
-    # Add column for ownership_status
-    df['owner_status'] = ''
-    df['address'] = ''
+    # Add columns for ownership_status, address, notes
+    df['owner_status'] = None
+    df['address'] = None
+    df['notes'] = None
 
     # Create 'agency' column with county name as values
     df.insert(0, 'agency', 'Pierce Transit')

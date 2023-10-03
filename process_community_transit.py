@@ -36,10 +36,9 @@ def process_community_transit():
                                 'MINOR': 'permanent',
                                 'LEASE': 'lease'},
                                inplace=True)
-
-    # Convert object type to float
-    # df['total_spaces'] = df['total_spaces'].astype(float)
-    # df['occupied_spaces'] = df['occupied_spaces'].astype(float)
+    
+    # Create notes column
+    df['notes'] = None
 
     # Create 'agency' column with county name as values
     df.insert(0, 'agency', 'Community Transit')
