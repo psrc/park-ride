@@ -83,7 +83,7 @@ def clean_names_pierce_transit():
 
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
-    conn_string = conn_str = (
+    conn_string = (
         r'Driver=SQL Server;'
         r'Server=AWS-Prod-SQL\Sockeye;'
         r'Database=Elmer;'
@@ -117,22 +117,26 @@ def clean_names_pierce_transit():
                                    left_on='lot_name', right_on='name',
                                    how="right")
 
-    # remove lots that are in master and do not match in Pierce data - this step is for checking lots
-    maybe_new_lots = pierce_lots_merge22[pierce_lots_merge22['lot_name'].isnull(
-    )]
+    # remove lots that are in master and do not match in Pierce data
+    # this step and the next should be run manually before running the function
+    maybe_new_lots = pierce_lots_merge22[pierce_lots_merge22['lot_name'].isnull()]
 
     print('Renaming lots with inconsistent names')
-    # rename 11 'new' lots - those in the new data set that don't match the master list
-    pierce_data_renamed = pierce_data.replace({'name': {'72nd St. Transit Center': '72nd St Transit Center',
-                                                        'Bonney Lake (SR410)': 'Bonney Lake South (SR 410)',
-                                                        'Center St': 'Center Street',
-                                                        'DuPont': 'Dupont Station',
-                                                        'Narrows/Skyline': 'Narrows P&R',
-                                                        'North Gig Harbor (Kimball Drive)': 'Kimball Dr P&R',
-                                                        'Puyallup Red lot': 'Puyallup Red Lot',
-                                                        'S. Tacoma Station': 'South Tacoma Station',
-                                                        'South Purdy': 'South Purdy P&R',
-                                                        'South Tacoma East I (north side)': 'South Tacoma East 1 (North side)',
-                                                        'South Tacoma East II (south side)': 'South Tacoma East 2 (South side)'}})
+    # rename 10 'new' lots - those in the new data set that don't match the master list
+    pierce_data_renamed = pierce_data.replace(
+        {'name': {'72nd St. Transit Center': '72nd St Transit Center',
+                  'Center St': 'Center Street',
+                  'DuPont': 'Dupont Station',
+                  'Narrows/Skyline': 'Narrows P&R',
+                  'North Gig Harbor (Kimball Drive)': 'Kimball Dr P&R',
+                  'Puyallup Red lot': 'Puyallup Red Lot',
+                  'S. Tacoma Station': 'South Tacoma Station',
+                  'South Purdy': 'South Purdy P&R',
+                  'South Tacoma East I (north side)': 'South Tacoma East 1 (North side)',
+                  'South Tacoma East II (south side)': 'South Tacoma East 2 (South side)'}
+         })
+    
+    # remove Bonney Lake lot - used in Sound Transit data instead
+    pierce_data_renamed = pierce_data_renamed.drop(pierce_data_renamed[pierce_data_renamed.name == 'Bonney Lake (SR410)'].index)
 
     return pierce_data_renamed

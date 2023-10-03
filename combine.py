@@ -57,7 +57,7 @@ def clean_names_sound_transit():
 
     all_data_2022 = process_combining_agency_data()
 
-    conn_string = conn_str = (
+    conn_string = (
         r'Driver=SQL Server;'
         r'Server=AWS-Prod-SQL\Sockeye;'
         r'Database=Elmer;'
@@ -88,11 +88,25 @@ def clean_names_sound_transit():
                             right_on='name', how="right")
 
     lots_check = lots_merge22[lots_merge22['lot_name'].isnull()]
-    # 25 lots from Sound Transit that don't line up with master list - requires checking before can resolve
+    # 24 lots from Sound Transit that don't line up with master list - requires checking before can resolve
 
     # edit master data to fix Sound Transit issues
     data_renamed = all_data_2022.replace(
-        {'name': {'Federal Way TC': 'Federal Way Transit Center'}})
+        {'name': {'72nd St. Transit Center': '72nd St Transit Center',
+                  'Auburn Garage': 'Auburn Garage at Auburn Station',
+                  'Auburn Surface Parking Lot': 'Auburn Surface lot at Auburn Station',
+                  'Bonney Lake': 'Bonney Lake South (SR 410)',
+                  'Edmonds Salish Crossings': 'Edmonds Station Leased Lot Salish Crossings',
+                  'Federal Way TC': 'Federal Way Transit Center',
+                  'Issaquah TC': 'Issaquah Transit Center',
+                  'Kent Garage': 'Kent Garage at Kent Station',
+                  'Kent Surface Parking Lot': 'Kent Surface Lot at Kent Station',
+                  'Lynnwood TC': 'Lynnwood Transit Center',
+                  'Mercer Island': 'Mercer Island P&R',
+                  'South Bellevue': 'South Bellevue P&R',
+                  'Tukwila Station': 'Tukwila Sounder Station',
+                  'Tukwila Station (TIBS)': 'Tukwila International Blvd Station'}
+         })
 
     # remove Sound Transit duplicates
     final_data_2022 = data_renamed.drop(data_renamed[(data_renamed.agency == 'Sound Transit') &
