@@ -26,9 +26,8 @@ def process_king_county_metro():
     # Fix church names
     df['Name'] = df['Name'].str.replace(r'^(St)', 'St.', regex=True)
 
-    # Round decimal values to whole numbers; recalculate utilization
+    # Round decimal values to whole numbers
     df = df.round({'occupied_spaces': 0})
-    df = df.assign(utilization=df['occupied_spaces']/df['total_spaces'])
 
     # Create 'agency' column with county name as values
     df.insert(0, 'agency', 'King County Metro Transit')
@@ -54,7 +53,7 @@ def clean_names_king_county_metro():
 
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
-    conn_string = conn_str = (
+    conn_string = (
         r'Driver=SQL Server;'
         r'Server=AWS-Prod-SQL\Sockeye;'
         r'Database=Elmer;'
@@ -93,54 +92,52 @@ def clean_names_king_county_metro():
 
     print('Renaming lots with inconsistent names')
     # rename 46 'new' lots - those in the new data set that don't match the master list
-    king_data_renamed = king_data.replace({'name': {'Auburn': 'Auburn P&R',
-                                                    'Bear Creek': 'Bear Creek P&R',
-                                                    'Bothell': 'Bothell P&R',
-                                                    'Brickyard Rd': 'Brickyard Road P&R',
-                                                    'Burien TC': 'Burien Transit Center',
-                                                    'Church by the Side of the Road (THE)': 'Church by the Side of the Road',
-                                                    'Duvall': 'Duvall P&R',
-                                                    'East Hill Friends': 'East Hill Friends Church',
-                                                    # combine garage with Eastgate P&R
-                                                    'Eastgate (Garage)': 'Eastgate P&R',
-                                                    'Federal Way / S 320th Street P&R': 'Federal Way/S 320th St',
-                                                    'Greenlake / I-5 & 65th St.': 'Greenlake (I-5/NE 65th St)',
-                                                    'Issaquah Highlands': 'Issaquah Highlands P&R',
-                                                    'Kent / Des Moines': 'Kent/Des Moines',
-                                                    'Kent / James Street': 'Kent/James Street',
-                                                    'Kingsgate P&R (WSDOT)': 'Kingsgate P&R',
-                                                    'Kirkland Way': 'SR 908/Kirkland Way',
-                                                    'Lake Meridian': 'Lake Meridian/East Kent',
-                                                    'New Life Church @ Renton': 'New Life Church',
-                                                    'Newport Hills': 'Newport Hills P&R',
-                                                    'North Bend': 'North Bend P&R',
-                                                    'North Seattle': 'North Seattle Interim',
-                                                    'Northgate Transit Center': 'Northgate TC Extension',
-                                                    'Olson Place SW / Myers Way': 'Olson Place SW/Myers Way',
-                                                    'Renton Municipal Garage P&R': 'Renton City Municipal Garage',
-                                                    'Renton P&R (Metropolitan Place Apts)': 'Renton P&R (Metropolitan Place)',
-                                                    'S Mercer Center-Mercer Island QFC P&R': 'South Mercer Center, Mercer Island QFC',
-                                                    'SW Spokane': 'SW Spokane St',
-                                                    'Shoreline': 'Shoreline P&R',
-                                                    'South Federal Way': 'South Federal Way P&R',
-                                                    # combine garage and surface
-                                                    'South Kirkland (Garage)': 'South Kirkland P&R',
-                                                    # combine garage and surface
-                                                    'South Kirkland (Surface)': 'South Kirkland P&R',
-                                                    'South Sammamish': 'South Sammamish P&R',
-                                                    'St. Luke\'s Lutheran Church - Federal Way': 'St. Luke\'s Lutheran Church-Federal Way',
-                                                    'The Vine Church (formerly Bethany Bible)': 'The Vine Church',
-                                                    'Tibbetts Valley Park': 'Tibbett\'s Valley Park',
-                                                    'Tukwila': 'Tukwila P&R'}
-                                           })
+    king_data_renamed = king_data.replace(
+        {'name': {'Auburn': 'Auburn P&R',
+                  'Bear Creek': 'Bear Creek P&R',
+                  'Bothell': 'Bothell P&R',
+                  'Brickyard Rd': 'Brickyard Road P&R',
+                  'Burien TC': 'Burien Transit Center',
+                  'Church by the Side of the Road (THE)': 'Church by the Side of the Road',
+                  'Duvall': 'Duvall P&R',
+                  'East Hill Friends': 'East Hill Friends Church',
+                  # combine garage with Eastgate P&R
+                  'Eastgate (Garage)': 'Eastgate P&R',
+                  'Federal Way / S 320th Street P&R': 'Federal Way/S 320th St',
+                  'Greenlake / I-5 & 65th St.': 'Greenlake (I-5/NE 65th St)',
+                  'Issaquah Highlands': 'Issaquah Highlands P&R',
+                  'Kent / Des Moines': 'Kent/Des Moines',
+                  'Kent / James Street': 'Kent/James Street',
+                  'Kingsgate P&R (WSDOT)': 'Kingsgate P&R',
+                  'Kirkland Way': 'SR 908/Kirkland Way',
+                  'Lake Meridian': 'Lake Meridian/East Kent',
+                  'New Life Church @ Renton': 'New Life Church',
+                  'Newport Hills': 'Newport Hills P&R',
+                  'North Bend': 'North Bend P&R',
+                  'North Seattle': 'North Seattle Interim',
+                  'Northgate Transit Center': 'Northgate TC Extension',
+                  'Olson Place SW / Myers Way': 'Olson Place SW/Myers Way',
+                  'Renton Municipal Garage P&R': 'Renton City Municipal Garage',
+                  'Renton P&R (Metropolitan Place Apts)': 'Renton P&R (Metropolitan Place)',
+                  'S Mercer Center-Mercer Island QFC P&R': 'South Mercer Center, Mercer Island QFC',
+                  'SW Spokane': 'SW Spokane St',
+                  'Shoreline': 'Shoreline P&R',
+                  'South Federal Way': 'South Federal Way P&R',
+                  # combine garage and surface
+                  'South Kirkland (Garage)': 'South Kirkland P&R',
+                  # combine garage and surface
+                  'South Kirkland (Surface)': 'South Kirkland P&R',
+                  'South Sammamish': 'South Sammamish P&R',
+                  'St. Luke\'s Lutheran Church - Federal Way': 'St. Luke\'s Lutheran Church-Federal Way',
+                  'The Vine Church (formerly Bethany Bible)': 'The Vine Church',
+                  'Tibbetts Valley Park': 'Tibbett\'s Valley Park',
+                  'Tukwila': 'Tukwila P&R'}
+         })
 
     # group by name and recalculate/rebuild
     king_data_renamed = king_data_renamed.groupby(['name'], as_index=False).agg(
         total_spaces=('total_spaces', 'sum'),
         occupied_spaces=('occupied_spaces', 'sum'))
-
-    king_data_renamed = king_data_renamed.assign(
-        utilization=king_data_renamed['occupied_spaces']/king_data_renamed['total_spaces'])
 
     # Create 'agency' column with county name as values
     king_data_renamed.insert(0, 'agency', 'King County Metro Transit')

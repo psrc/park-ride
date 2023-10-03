@@ -16,12 +16,14 @@ def process_kitsap_transit():
 
     # Read xlsx file in folder
     df = pd.read_excel(io=file_path + dir_list[0], sheet_name=0, usecols='A:D', skipfooter=1)
+    
+    # Remove extra columns
+    df.drop(['%'], axis=1, inplace=True)
 
     # Rename column names
     df.rename({'P&R LOCATION':'name',
                'SPACES':'total_spaces',
-               'OCCUPIED SPACES':'occupied_spaces',
-               '%':'utilization'},
+               'OCCUPIED SPACES':'occupied_spaces'},
               axis=1, inplace=True)
 
     # Remove rows using tuple created above
@@ -35,9 +37,8 @@ def process_kitsap_transit():
     df.iloc[7, 1:4] = df.iloc[8, 1:4]
     df = df[~df['name'].str.contains(r'=\d+\)', regex=True)]
 
-    # Round decimal values to whole numbers; recalculate utilization
+    # Round decimal values to whole numbers
     df = df.round({'occupied_spaces':0})
-    df = df.assign(utilization=df['occupied_spaces']/df['total_spaces'])
 
     # Create 'agency' column with agency name as values
     df.insert(0, 'agency', 'Kitsap Transit')
@@ -56,7 +57,7 @@ def clean_names_kitsap_transit():
     print('Connecting to Elmer to pull master data park and ride lots')
     
     # connect to master data
-    conn_string = conn_str = (
+    conn_string = (
         r'Driver=SQL Server;'
         r'Server=AWS-Prod-SQL\Sockeye;'
         r'Database=Elmer;'

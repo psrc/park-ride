@@ -32,17 +32,10 @@ def process_pierce_transit():
 
     # Create column with average occupancy
     df["occupied_spaces"] = df.loc[:, [
-        col for col in df if col.startswith('Unnamed')]].mean(axis=1)
+        col for col in df if col.startswith('Unnamed')]].mean(axis=1).round(0)
 
     # Remove all month columns
     df.drop(df.filter(regex='Unnamed').columns, axis=1, inplace=True)
-
-    # Convert object type to float
-    df['total_spaces'] = df['total_spaces'].astype(float)
-    df['occupied_spaces'] = df['occupied_spaces'].astype(float)
-
-    # Calculate utilization rate
-    df['utilization'] = df['occupied_spaces']/df['total_spaces']
 
     # Remove extra rows from formatted excel workbook
     df = df[(df["name"].str.contains("Subtotal") == False) &

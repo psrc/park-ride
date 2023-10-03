@@ -18,7 +18,7 @@ def process_community_transit():
         header=2)
 
     # Remove extra columns
-    df = df.loc[:, ~df.columns.str.contains('^Unnamed: 0')]
+    df.drop(['Unnamed: 0', 'AVG_Utilization'], axis=1, inplace=True)
 
     # Remove leading spaces for column names
     df.columns = df.columns.str.strip()
@@ -28,8 +28,7 @@ def process_community_transit():
                'Facility': 'name',
                'Facility_Address': 'address',
                'AVG_Stall_Count': 'total_spaces',
-               'AVG_Parked_Vehicles': 'occupied_spaces',
-               'AVG_Utilization': 'utilization'},
+               'AVG_Parked_Vehicles': 'occupied_spaces'},
               axis=1, inplace=True)
 
     # Change ownership_status options
@@ -62,7 +61,7 @@ def clean_names_community_transit():
 
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
-    conn_string = conn_str = (
+    conn_string = (
         r'Driver=SQL Server;'
         r'Server=AWS-Prod-SQL\Sockeye;'
         r'Database=Elmer;'
@@ -89,8 +88,7 @@ def clean_names_community_transit():
 
     # filter lots in Community County from master df
     # community_master = master_df[master_df['county_name'].str.contains('Snohomish')] # also pulls lots from Sound Transit
-    community_master = master_df[master_df['maintainer_agency'].isin(
-        ['Community Transit'])]
+    community_master = master_df[master_df['maintainer_agency'].isin(['Community Transit'])]
 
     # merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
     community_lots_merge22 = pd.merge(community_master, community_data,
@@ -98,18 +96,15 @@ def clean_names_community_transit():
                                       how="right")
 
     # remove lots that are in master and do not match in Pierce data - this step is for checking lots
-    maybe_new_lots = community_lots_merge22[community_lots_merge22['lot_name'].isnull(
-    )]
+    maybe_new_lots = community_lots_merge22[community_lots_merge22['lot_name'].isnull()]
 
     print('Renaming lots with inconsistent names')
-    # rename 16 'new' lots - those in the new data set that don't match the master list
+    # rename 14 'new' lots - those in the new data set that don't match the master list
     community_data_renamed = community_data.replace({'name': {'Arlington': 'Arlington P&R',
-                                                              # 'Calvary Chapel Marysville': '', # no matching in master
                                                               'Canyon Park': 'Canyon Park P&R',
                                                               'Eastmont': 'Eastmont P&R',
                                                               'Edmonds': 'Edmonds P&R',
                                                               'Freeborn': 'Freeborn Park and Ride',
-                                                              'Gold Bar': 'Goldbar',
                                                               'I-5 @ SR 531': 'I-5 at SR 531',
                                                               'Lake Stevens': 'Lake Stevens Transit Center',
                                                               'Lynnwood': 'Lynnwood Transit Center',
