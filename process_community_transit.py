@@ -99,7 +99,7 @@ def clean_names_community_transit():
     maybe_new_lots = community_lots_merge22[community_lots_merge22['lot_name'].isnull()]
 
     print('Renaming lots with inconsistent names')
-    # rename 14 'new' lots - those in the new data set that don't match the master list
+    # rename 13 'new' lots - those in the new data set that don't match the master list
     community_data_renamed = community_data.replace({'name': {'Arlington': 'Arlington P&R',
                                                               'Canyon Park': 'Canyon Park P&R',
                                                               'Eastmont': 'Eastmont P&R',
@@ -107,12 +107,14 @@ def clean_names_community_transit():
                                                               'Freeborn': 'Freeborn Park and Ride',
                                                               'I-5 @ SR 531': 'I-5 at SR 531',
                                                               'Lake Stevens': 'Lake Stevens Transit Center',
-                                                              'Lynnwood': 'Lynnwood Transit Center',
                                                               'Mariner': 'Mariner P&R',
                                                               'Marysville Cedar and Grove': 'Marysville at Cedar & Grove',
                                                               'Monroe': 'Monroe P&R',
                                                               'Mountlake Terrace': 'Mountlake Terrace Transit Center',
                                                               'Snohomish': 'Snohomish P&R',
                                                               'South Everett': 'South Everett Freeway Station'}})
+    
+    # remove Lynnwood lot - used in Sound Transit data instead
+    community_data_renamed = community_data_renamed.drop(community_data_renamed[community_data_renamed.name == 'Lynnwood'].index)
 
     return community_data_renamed
