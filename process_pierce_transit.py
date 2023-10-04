@@ -21,7 +21,7 @@ def process_pierce_transit():
 
     # Rename column names
     df.rename({'Name and Address': 'name',
-               'of': 'total_spaces'},
+               'of': 'capacity'},
               axis=1, inplace=True)
 
     # Remove unnecessary header row
@@ -31,7 +31,7 @@ def process_pierce_transit():
     df.drop(df.filter(regex='Avg|%').columns, axis=1, inplace=True)
 
     # Create column with average occupancy
-    df["occupied_spaces"] = df.loc[:, [
+    df["occupancy"] = df.loc[:, [
         col for col in df if col.startswith('Unnamed')]].mean(axis=1).round(0)
 
     # Remove all month columns
@@ -39,8 +39,8 @@ def process_pierce_transit():
 
     # Remove extra rows from formatted excel workbook
     df = df[(df["name"].str.contains("Subtotal") == False) &
-            (df['total_spaces'].notna()) &
-            (df['occupied_spaces'].notna())]
+            (df['capacity'].notna()) &
+            (df['occupancy'].notna())]
 
     # Remove superscript numbers from lot name column
     df['name'] = df['name'].replace(

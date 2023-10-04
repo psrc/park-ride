@@ -27,8 +27,8 @@ def process_community_transit():
     df.rename({'Facility_Type': 'owner_status',
                'Facility': 'name',
                'Facility_Address': 'address',
-               'AVG_Stall_Count': 'total_spaces',
-               'AVG_Parked_Vehicles': 'occupied_spaces'},
+               'AVG_Stall_Count': 'capacity',
+               'AVG_Parked_Vehicles': 'occupancy'},
               axis=1, inplace=True)
 
     # Change ownership_status options

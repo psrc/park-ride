@@ -17,8 +17,8 @@ def process_king_county_metro():
         io=file_path + dir_list[0], sheet_name=0, usecols='A:D', skipfooter=1)
 
     # Generate year averages from monthly/quarterly values
-    df = df.groupby(['Name'], as_index=False).agg(total_spaces=('Total Capacity (# of stalls)', 'mean'),
-                                                  occupied_spaces=('Mthly - Veh Count', 'mean'))
+    df = df.groupby(['Name'], as_index=False).agg(capacity = ('Total Capacity (# of stalls)', 'mean'),
+                                                  occupancy = ('Mthly - Veh Count', 'mean'))
 
     # Remove (KC) from names
     df['Name'] = df['Name'].str.replace(r'\(KC\)', '', regex=True).str.strip()
@@ -27,7 +27,7 @@ def process_king_county_metro():
     df['Name'] = df['Name'].str.replace(r'^(St)', 'St.', regex=True)
 
     # Round decimal values to whole numbers
-    df = df.round({'occupied_spaces': 0})
+    df = df.round({'occupancy': 0})
 
     # Create 'agency' column with county name as values
     df.insert(0, 'agency', 'King County Metro Transit')
@@ -136,8 +136,8 @@ def clean_names_king_county_metro():
 
     # group by name and recalculate/rebuild
     king_data_renamed = king_data_renamed.groupby(['name'], as_index=False).agg(
-        total_spaces=('total_spaces', 'sum'),
-        occupied_spaces=('occupied_spaces', 'sum'))
+        capacity = ('capacity', 'sum'),
+        occupancy = ('occupancy', 'sum'))
 
     # Create 'agency' column with county name as values
     king_data_renamed.insert(0, 'agency', 'King County Metro Transit')

@@ -22,8 +22,8 @@ def process_kitsap_transit():
 
     # Rename column names
     df.rename({'P&R LOCATION':'name',
-               'SPACES':'total_spaces',
-               'OCCUPIED SPACES':'occupied_spaces'},
+               'SPACES':'capacity',
+               'OCCUPIED SPACES':'occupancy'},
               axis=1, inplace=True)
 
     # Remove rows using tuple created above
@@ -38,7 +38,7 @@ def process_kitsap_transit():
     df = df[~df['name'].str.contains(r'=\d+\)', regex=True)]
 
     # Round decimal values to whole numbers
-    df = df.round({'occupied_spaces':0})
+    df = df.round({'occupancy':0})
     
     # Create notes column
     df['notes'] = None

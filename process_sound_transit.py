@@ -32,17 +32,17 @@ def process_sound_transit():
         df.columns = df.columns.str.replace(' ', '_', regex=True).str.lower()
 
         # Create column of avg occupied spaces; recode service_type; add agency column
-        df = df.assign(occupied_spaces=df.loc[:, ['tuesday', 'wednesday', 'thursday']].mean(axis=1).round(0))
+        df = df.assign(occupancy = df.loc[:, ['tuesday', 'wednesday', 'thursday']].mean(axis=1).round(0))
         df['service_type'] = np.where(df['service_type'].str.contains('^leas', case=False, regex=True), 'leased', 'permanent')
 
         # Subset df to only needed columns
-        df = df.loc[:, ['location', 'service_type', 'address', 'capacity', 'occupied_spaces']]
+        df = df.loc[:, ['location', 'service_type', 'address', 'capacity', 'occupancy']]
 
         # Rename columns to standard names
         df.rename({'location':'name',
                     'service_type':'owner_status',
-                    'capacity':'t_' + month,
-                    'occupied_spaces':'o_' + month},
+                    'capacity':'c_' + month,
+                    'occupancy':'o_' + month},
                    axis=1, inplace=True)
         
         if len(processed.columns) == 0:
@@ -53,17 +53,18 @@ def process_sound_transit():
         print('Done processing {} data.'.format(month))
         
     # Average monthly usage to annual
-    processed = processed.assign(occupied_spaces=processed.loc[:, ['o_jan', 'o_feb', 'o_mar',
-                                                                   'o_apr', 'o_may', 'o_jun',
-                                                                   'o_jul', 'o_aug', 'o_sep',
-                                                                   'o_oct', 'o_nov', 'o_dec']].mean(axis=1).round(0))
-    processed = processed.assign(total_spaces=processed.loc[:, ['t_jan', 't_feb', 't_mar',
-                                                                't_apr', 't_may', 't_jun',
-                                                                't_jul', 't_aug', 't_sep',
-                                                                't_oct', 't_nov', 't_dec']].mean(axis=1).round(0))
+    processed = processed.assign(occupancy = processed.loc[:, ['o_jan', 'o_feb', 'o_mar',
+                                                               'o_apr', 'o_may', 'o_jun',
+                                                               'o_jul', 'o_aug', 'o_sep',
+                                                               'o_oct', 'o_nov', 'o_dec']].mean(axis=1).round(0))
+    
+    processed = processed.assign(capacity = processed.loc[:, ['c_jan', 'c_feb', 'c_mar',
+                                                              'c_apr', 'c_may', 'c_jun',
+                                                              'c_jul', 'c_aug', 'c_sep',
+                                                              'c_oct', 'c_nov', 'c_dec']].mean(axis=1).round(0))
     
     # Subset dataframe to needed columns for output; insert notes, agency name
-    processed = processed.loc[:, ['name', 'owner_status', 'address', 'total_spaces', 'occupied_spaces']]
+    processed = processed.loc[:, ['name', 'owner_status', 'address', 'capacity', 'occupancy']]
     processed['notes'] = None
     processed.insert(0, 'agency', 'Sound Transit')
     

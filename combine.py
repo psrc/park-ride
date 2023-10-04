@@ -142,7 +142,7 @@ def clean_names_sound_transit():
 data_set = clean_names_sound_transit()
 
 # subset data for insert into fact table in Elmer
-data_upload = data_set.loc[:, ['lot_dim_id', 'data_year', 'total_spaces', 'occupied_spaces', 'notes']].sort_values('lot_dim_id')
+data_upload = data_set.loc[:, ['lot_dim_id', 'data_year', 'capacity', 'occupancy', 'notes']].sort_values('lot_dim_id')
 
 # create sqlalchemy engine for table insert in Elmer
 engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(conn_string))
