@@ -2,6 +2,7 @@ import os
 import pandas as pd
 import numpy as np
 import pyodbc  # for Elmer connection
+from sqlalchemy import create_engine  # for Elmer data insert
 
 # working directory
 print(os.getcwd())
@@ -56,7 +57,8 @@ def clean_names_sound_transit():
     print('Begin renaming process for aligning Sound Transit park & ride data.')
 
     all_data_2022 = process_combining_agency_data()
-
+    
+    global conn_string
     conn_string = (
         r'Driver=SQL Server;'
         r'Server=AWS-Prod-SQL\Sockeye;'
@@ -94,7 +96,7 @@ def clean_names_sound_transit():
     data_renamed = all_data_2022.replace(
         {'name': {'72nd St. Transit Center': '72nd St Transit Center',
                   'Auburn Garage': 'Auburn Garage at Auburn Station',
-                  'Auburn Surface Parking Lot': 'Auburn Surface lot at Auburn Station',
+                  'Auburn Surface Parking Lot': 'Auburn Surface Lot at Auburn Station',
                   'Bonney Lake': 'Bonney Lake South (SR 410)',
                   'Edmonds Salish Crossings': 'Edmonds Station Leased Lot Salish Crossings',
                   'Federal Way TC': 'Federal Way Transit Center',
@@ -109,7 +111,7 @@ def clean_names_sound_transit():
          })
 
     # remove Sound Transit duplicates
-    final_data_2022 = data_renamed.drop(data_renamed[(data_renamed.agency == 'Sound Transit') &
+    data_renamed = data_renamed.drop(data_renamed[(data_renamed.agency == 'Sound Transit') &
                                                      (data_renamed.name == 'Auburn Station') |
                                                      (data_renamed.name == 'DuPont') |
                                                      (data_renamed.name == 'Eastmont') |
@@ -119,11 +121,39 @@ def clean_names_sound_transit():
                                                      (data_renamed.name == 'South Hill') |
                                                      (data_renamed.name == 'Sumner Station') |
                                                      (data_renamed.name == 'Tacoma Dome Station Garage')].index)
+    
+    final_data_2022 = pd.merge(data_renamed, master_dim_df,
+                               left_on='name', right_on='lot_name',
+                               how='left')
+    
+    final_data_2022.rename({'notes_x': 'notes',
+                            'notes_y': 'lot_dim_notes'},
+                           axis=1, inplace=True)
+    
+    # add data year to final data
+    final_data_2022.insert(0, 'data_year', 2022)
+    
+    owner_check = final_data_2022.loc[:, ['agency', 'name', 'owner_status', 'ownership_status', 'lot_name']].sort_values('owner_status')
+    lot_id_check = final_data_2022[final_data_2022.duplicated('lot_dim_id', keep=False)]
 
     return final_data_2022
 
 
 data_set = clean_names_sound_transit()
+
+# subset data for insert into fact table in Elmer
+data_upload = data_set.loc[:, ['lot_dim_id', 'data_year', 'total_spaces', 'occupied_spaces', 'notes']].sort_values('lot_dim_id')
+
+# create sqlalchemy engine for table insert in Elmer
+engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(conn_string))
+
+# insert new data into fact table in Elmer
+data_upload.to_sql(name='park_and_ride_facts',
+                   con=engine,
+                   schema='park_and_ride',
+                   if_exists='append',
+                   index=False
+                   )
 
 # ISSUES -------------
 
