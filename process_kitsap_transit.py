@@ -2,40 +2,43 @@ import pandas as pd
 import os
 import pyodbc
 
-def process_kitsap_transit():
-    """Process 2022 park & ride data from Kitsap Transit."""
+def process_kitsap_transit(year):
+    """Process park & ride data from Kitsap Transit using current project year."""
     
     print('Begin processing Kitsap Transit park & ride data.')
     
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/2022/Kitsap Transit/'
+    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/Kitsap Transit/'
     dir_list = os.listdir(file_path)
 
     # Create tuple of rows to remove from the data
-    del_rows = ('NORTH', 'BAINBRIDGE', 'CENTRAL', 'SOUTH')
+    #del_rows = ('NORTH', 'BAINBRIDGE', 'CENTRAL', 'SOUTH')
 
     # Read xlsx file in folder
-    df = pd.read_excel(io=file_path + dir_list[0], sheet_name=0, usecols='A:D', skipfooter=1)
+    df = pd.read_excel(io=file_path + dir_list[0], sheet_name=1, usecols='B:D', skipfooter=1)
     
     # Remove extra columns
-    df.drop(['%'], axis=1, inplace=True)
+    #df.drop(['%'], axis=1, inplace=True)
 
     # Rename column names
-    df.rename({'P&R LOCATION':'name',
+    df.rename({'LOCATION':'name',
                'SPACES':'capacity',
-               'OCCUPIED SPACES':'occupancy'},
+               'YTD AVERAGE':'occupancy'},
               axis=1, inplace=True)
 
     # Remove rows using tuple created above
-    df = df[~df['name'].isin(del_rows)]
+    #df = df[~df['name'].isin(del_rows)]
 
     # Replace asteriks in names
     df['name'] = df['name'].str.replace(r'\*+', '', regex=True).str.strip()
 
     # Copy values for Clearwater Casino and Poulsbo Junction; delete extra rows
-    df.iloc[3, 1:4] = df.iloc[4, 1:4]
-    df.iloc[7, 1:4] = df.iloc[8, 1:4]
-    df = df[~df['name'].str.contains(r'=\d+\)', regex=True)]
+    #df.iloc[3, 1:4] = df.iloc[4, 1:4]
+    #df.iloc[7, 1:4] = df.iloc[8, 1:4]
+    #df = df[~df['name'].str.contains(r'=\d+\)', regex=True)]
+    
+    # Remove info in parentheses for Clearwater Casino and Poulsbo Junction
+    df['name'] = df['name'].str.replace(r'\(.+\)$', '', regex=True).str.strip()
 
     # Round decimal values to whole numbers
     df = df.round({'occupancy':0})

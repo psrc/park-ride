@@ -3,18 +3,19 @@ import os
 import pyodbc  # for Elmer connection
 
 
-def process_king_county_metro():
-    """Process 2022 park & ride data from King County Metro Transit."""
+def process_king_county_metro(year):
+    """Process park & ride data from King County Metro Transit using current project year."""
 
     print('Begin processing King County Metro Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/2022/King County/'
+    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/King County/'
     dir_list = os.listdir(file_path)
 
     # Read xlsx file in folder
     df = pd.read_excel(
-        io=file_path + dir_list[0], sheet_name=0, usecols='A:D', skipfooter=1)
+        io=file_path + dir_list[0], sheet_name=0, usecols='A:D'#, skipfooter=1
+        )
 
     # Generate year averages from monthly/quarterly values
     df = df.groupby(['Name'], as_index=False).agg(capacity = ('Total Capacity (# of stalls)', 'mean'),
@@ -44,7 +45,7 @@ def process_king_county_metro():
 
 
 def clean_names_king_county_metro():
-    """Clean names of 2022 park & ride lots from King County Metro to match master data."""
+    """Clean names of park & ride lots from King County Metro to match master data."""
 
     print('Begin renaming process for aligning King County Metro park & ride data.')
 

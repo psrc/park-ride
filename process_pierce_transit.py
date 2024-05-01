@@ -3,18 +3,18 @@ import os
 import pyodbc  # for Elmer connection
 
 
-def process_pierce_transit():
-    """Process 2022 park & ride data from Pierce Transit."""
+def process_pierce_transit(year):
+    """Process park & ride data from Pierce Transit using current project year."""
 
     print('Begin processing Pierce Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/2022/Pierce Transit/'
+    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/Pierce Transit/'
     dir_list = os.listdir(file_path)
 
     # Read xlsx file in folder
     df = pd.read_excel(
-        io=file_path + dir_list[0], sheet_name='2022',  header=1, skipfooter=25)
+        io=file_path + dir_list[0], sheet_name=str(year), header=1, skipfooter=25)
 
     # Remove leading spaces for column names
     df.columns = df.columns.str.strip()
@@ -32,13 +32,14 @@ def process_pierce_transit():
 
     # Create column with average occupancy
     df["occupancy"] = df.loc[:, [
-        col for col in df if col.startswith('Unnamed')]].mean(axis=1).round(0)
+        col for col in df if col.startswith('Unnamed')]].mean(axis=1).astype(float).round(0)
 
     # Remove all month columns
     df.drop(df.filter(regex='Unnamed').columns, axis=1, inplace=True)
 
     # Remove extra rows from formatted excel workbook
     df = df[(df["name"].str.contains("Subtotal") == False) &
+            (df["name"].str.contains("Grand Total") == False) &
             (df['capacity'].notna()) &
             (df['occupancy'].notna())]
 
