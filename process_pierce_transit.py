@@ -63,9 +63,50 @@ def process_pierce_transit(year):
 
     # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()
+    
+    # remove Bonney Lake lot - used in Sound Transit data instead
+    df = df.drop(df[df.name == 'Bonney Lake (SR410)'].index)
+    
+    print('Connecting to Elmer to pull master data park and ride lots')
+    # connect to master data
+    conn_string = (
+        r'Driver=SQL Server;'
+        r'Server=AWS-Prod-SQL\Sockeye;'
+        r'Database=Elmer;'
+        r'Trusted_Connection=yes;')
+
+    sql_conn = pyodbc.connect(conn_string)
+
+    # dim table
+    master_dim_df = pd.read_sql(
+        sql='select * from park_and_ride.lot_dim', con=sql_conn)
+
+    # facts table
+    master_facts_df = pd.read_sql(
+        sql='select * from park_and_ride.park_and_ride_facts', con=sql_conn)
+
+    # join so that lots have capacity numbers for checking against new data
+    master_df = pd.merge(master_dim_df, master_facts_df,
+                         left_on='lot_dim_id', right_on='lot_dim_id',
+                         how="inner")
+
+    # filter lots in Pierce County from master df
+    pierce_master = master_df[master_df['county_name'].str.contains('Pierce')]
+
+    # merge data frames - keep only the current records to determine which ones don't line up with the master list
+    pierce_lots_merge = pd.merge(pierce_master, df,
+                                 left_on='lot_name', right_on='name',
+                                 how="right")
+
+    # remove lots that are in master and do not match in Pierce Transit data
+    maybe_new_lots = pierce_lots_merge[pierce_lots_merge['lot_name'].isnull()]
+    
+    maybe_new_lots.rename({'capacity_y': 'capacity', 'occupancy_y': 'occupancy'}, axis=1, inplace=True)
+    
+    maybe_new_lots = maybe_new_lots.loc[:, ['agency', 'owner_status', 'name', 'address', 'capacity', 'occupancy']].sort_values(by='name')
 
     print('All done.')
-    return df
+    return df, maybe_new_lots
 
 
 def clean_names_pierce_transit():
