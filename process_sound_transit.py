@@ -84,16 +84,16 @@ def process_sound_transit(year):
     processed.insert(0, 'agency', 'Sound Transit')
     
     # remove lots that are maintained by other agencies
-    processed = processed.drop(processed[(processed.name in ('Auburn Station',
-                                                             'DuPont',
-                                                             'Eastmont',
-                                                             'Kent Station',
-                                                             'Puyallup Red Lot (Fairgrounds)',
-                                                             'Puyallup Station',
-                                                             'South Hill',
-                                                             'Sumner Station',
-                                                             'Tacoma Dome Station Garage'
-                                                             ))].index)
+    processed.drop(processed[(processed.name == 'Auburn Station') |
+                             (processed.name == 'DuPont') |
+                             (processed.name == 'Eastmont') |
+                             (processed.name == 'Kent Station') |
+                             (processed.name == 'Puyallup Red Lot (Fairgrounds)') |
+                             (processed.name == 'Puyallup Station') |
+                             (processed.name == 'South Hill') |
+                             (processed.name == 'Sumner Station') |
+                             (processed.name == 'Tacoma Dome Station Garage')
+                             ].index, inplace=True)
     
     # Auburn Station - combined from surface parking lot and auburn garage, does not exist in master
     # DuPont: belongs to Pierce Transit
