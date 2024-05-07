@@ -130,9 +130,7 @@ def clean_names_community_transit():
                                     left_on='lot_name', right_on='name',
                                     how="right")
 
-    # remove lots that are in master and do not match in Pierce data - this step is for checking lots
-    # subset only RH side columns and rename those with '_y'
-    # return this table and split function here
+    # remove lots that are in master and do not match in Community Transit data
     maybe_new_lots = community_lots_merge[community_lots_merge['lot_name'].isnull()]
     
     maybe_new_lots.rename({'capacity_y': 'capacity', 'occupancy_y': 'occupancy'}, axis=1, inplace=True)

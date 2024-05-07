@@ -83,7 +83,7 @@ def process_kitsap_transit(year):
     
     maybe_new_lots.rename({'capacity_y': 'capacity', 'occupancy_y': 'occupancy'}, axis=1, inplace=True)
     
-    maybe_new_lots = maybe_new_lots.loc[:, ['agency', 'owner_status', 'name', 'address', 'capacity', 'occupancy']].sort_values(by='name')
+    maybe_new_lots = maybe_new_lots.loc[:, ['agency', 'name', 'capacity', 'occupancy']].sort_values(by='name')
     
     print('All done.')
     return df, maybe_new_lots

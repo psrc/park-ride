@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 import numpy as np
+import pyodbc  # for Elmer connection
 
 def process_sound_transit(year):
     """Pulls Sound Transit files from folder using current project year and combines into one table.
@@ -56,6 +57,9 @@ def process_sound_transit(year):
                     'occupancy':'o_' + month},
                    axis=1, inplace=True)
         
+        # Strip leading/trailing whitespace from lot names
+        df['name'] = df['name'].map(lambda x: x.strip())
+        
         if len(processed.columns) == 0:
             processed = df.copy(deep=True)
         else:
@@ -75,9 +79,66 @@ def process_sound_transit(year):
                                                                'o_oct', 'o_nov', 'o_dec']].mean(axis=1).round(0))
     
     # Subset dataframe to needed columns for output; insert notes, agency name
-    processed = processed.loc[:, ['name', 'owner_status', 'address', 'capacity', 'occupancy']]
+    processed = processed.loc[:, ['name', 'owner_status', 'address', 'capacity', 'occupancy']].sort_values(by='name')
     processed['notes'] = None
     processed.insert(0, 'agency', 'Sound Transit')
     
+    # remove lots that are maintained by other agencies
+    processed = processed.drop(processed[(processed.name in ('Auburn Station',
+                                                             'DuPont',
+                                                             'Eastmont',
+                                                             'Kent Station',
+                                                             'Puyallup Red Lot (Fairgrounds)',
+                                                             'Puyallup Station',
+                                                             'South Hill',
+                                                             'Sumner Station',
+                                                             'Tacoma Dome Station Garage'
+                                                             ))].index)
+    
+    # Auburn Station - combined from surface parking lot and auburn garage, does not exist in master
+    # DuPont: belongs to Pierce Transit
+    # Eastmont: belongs to Community Transit
+    # Kent Station: combination of Kent Garage and Kent Surface Parking Lot
+    # Puyallup Red Lot (Fairgrounds): belongs to Pierce Transit
+    # Puyallup Station: Puyallup Train Station is the same lot and belongs to Pierce Transit
+    # South Hill: belongs to Pierce Transit as South Hill P&R
+    # Sumner Station: belongs to Pierce Transit as Sumner Train Station
+    # Tacoma Dome Station Garage: belongs to Pierce Transit as Tacoma Dome Station
+    
+    print('Connecting to Elmer to pull master data park and ride lots')
+    # connect to master data
+    conn_string = (
+        r'Driver=SQL Server;'
+        r'Server=AWS-Prod-SQL\Sockeye;'
+        r'Database=Elmer;'
+        r'Trusted_Connection=yes;'
+    )
+
+    sql_conn = pyodbc.connect(conn_string)
+
+    # dim table
+    master_dim_df = pd.read_sql(
+        sql="select * from park_and_ride.lot_dim where maintainer_agency = 'Sound Transit'", con=sql_conn)
+
+    # facts table
+    master_facts_df = pd.read_sql(
+        sql='select * from park_and_ride.park_and_ride_facts', con=sql_conn)
+
+    # join so that lots have capacity numbers for checking against new data
+    master_df = pd.merge(master_dim_df, master_facts_df,
+                         left_on='lot_dim_id', right_on='lot_dim_id',
+                         how="inner")
+    
+    # merge data frames - keep only current records to determine which ones don't line up with the master list
+    sound_lots_merge = pd.merge(master_df, processed,
+                                left_on='lot_name', right_on='name',
+                                how="right")
+
+    maybe_new_lots = sound_lots_merge[sound_lots_merge['lot_name'].isnull()]
+    
+    maybe_new_lots.rename({'capacity_y': 'capacity', 'occupancy_y': 'occupancy'}, axis=1, inplace=True)
+    
+    maybe_new_lots = maybe_new_lots.loc[:, ['agency', 'owner_status', 'name', 'address', 'capacity', 'occupancy']].sort_values(by='name')
+    
     print('All done.')
-    return processed
+    return processed, maybe_new_lots

@@ -118,8 +118,7 @@ def clean_names_king_county_metro():
     # print(master_df.columns.tolist())
 
     # remove lots from Sound Transit
-    king_master = master_df[master_df['maintainer_agency'].isin(
-        ['King County Metro Transit'])]
+    king_master = master_df[master_df['maintainer_agency'].isin(['King County Metro Transit'])]
 
     # merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
     king_lots_merge22 = pd.merge(king_master, king_data,
