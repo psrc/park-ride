@@ -64,8 +64,11 @@ def process_pierce_transit(year):
     # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()
     
-    # remove Bonney Lake lot - used in Sound Transit data instead
-    df = df.drop(df[df.name == 'Bonney Lake (SR410)'].index)
+    # remove lots maintained by Sound Transit
+    df.drop(df[(df.name == 'Bonney Lake (SR410)') |
+               (df.name == 'S. Tacoma Station') |
+               (df.name == 'Puyallup Train Station') |
+               (df.name == 'Sumner Train Station')].index, inplace=True)
     
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
