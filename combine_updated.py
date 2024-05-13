@@ -107,7 +107,6 @@ pierce_data = pierce_data.replace(
               'Narrows/Skyline': 'Narrows P&R',
               'North Gig Harbor (Kimball Drive)': 'Kimball Dr P&R',
               'Puyallup Red lot': 'Puyallup Red Lot',
-              'S. Tacoma Station': 'South Tacoma Station',
               'South Purdy': 'South Purdy P&R',
               'South Tacoma East I (north side)': 'South Tacoma East 1 (North side)',
               'South Tacoma East II (south side)': 'South Tacoma East 2 (South side)'}
@@ -141,21 +140,28 @@ sound_data, sound_new_lots = st.process_sound_transit(2023)
 
 ## replace names
 sound_data = sound_data.replace(
-    {'name': {'72nd St. Transit Center': '72nd St Transit Center',
-              'Auburn Garage': 'Auburn Garage at Auburn Station',
+    {'name': {'Auburn Garage': 'Auburn Garage at Auburn Station',
               'Auburn Surface Parking Lot': 'Auburn Surface Lot at Auburn Station',
               'Bonney Lake': 'Bonney Lake South (SR 410)',
-              'Edmonds Salish Crossings': 'Edmonds Station Leased Lot Salish Crossings',
+              'Edmonds (Ft. Wayne)': 'Edmonds Station Leased Lot Salish Crossings',
               'Federal Way TC': 'Federal Way Transit Center',
               'Issaquah TC': 'Issaquah Transit Center',
               'Kent Garage': 'Kent Garage at Kent Station',
               'Kent Surface Parking Lot': 'Kent Surface Lot at Kent Station',
-              'Lynnwood TC': 'Lynnwood Transit Center',
+              #'Lynnwood TC': 'Lynnwood Transit Center',
+              #'Lynnwood TC Garage': 'Lynnwood Transit Center', # Apr 2023, seems to be new version of Lynnwood TC
               'Mercer Island': 'Mercer Island P&R',
+              #'Puyallup Garage': '', # new garage, capacity included in main station capacity
+              #'Puyallup Station Suface Lots': 'Puyallup Train Station', # capacity included in main station capacity
+              #'Puyallup Surface Lot E': '', # capacity included in main station capacity
               'South Bellevue': 'South Bellevue P&R',
               'Tukwila Station': 'Tukwila Sounder Station',
               'Tukwila Station (TIBS)': 'Tukwila International Blvd Station'}
      })
+
+# New lots ----------------------------
+# BelRed Station, added in Dec 2023
+# Redmond Technology Center Garage (RTS), added in Dec 2023
 
 #---------------------------------------------------------------------------------------------------
 # Combine datasets
