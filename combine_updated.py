@@ -5,12 +5,15 @@ from sqlalchemy import create_engine  # for Elmer data insert
 
 os.chdir('C:\\Users\\GGibson\\GitHub\\PSRC\\park-ride')
 
+# processing functions
 import process_community_transit as ct
 import process_king_county_metro as kcm
 import process_kitsap_transit as kt
 import process_pierce_transit as pt
 import process_sound_transit as st
+import process_combined_data as com
 
+# connection string for Elmer
 conn_string = (
     r'Driver=SQL Server;'
     r'Server=AWS-Prod-SQL\Sockeye;'
@@ -134,11 +137,10 @@ community_data = community_data.replace(
      })
 
 #---------------------------------------------------------------------------------------------------
-#### TO DO
 # Process Sound Transit data and clean names
 sound_data, sound_new_lots = st.process_sound_transit(2023)
 
-## replace names
+# rename 15 'new' lots - those in the new data set that don't match the master list
 sound_data = sound_data.replace(
     {'name': {'Auburn Garage': 'Auburn Garage at Auburn Station',
               'Auburn Surface Parking Lot': 'Auburn Surface Lot at Auburn Station',
@@ -148,13 +150,11 @@ sound_data = sound_data.replace(
               'Issaquah TC': 'Issaquah Transit Center',
               'Kent Garage': 'Kent Garage at Kent Station',
               'Kent Surface Parking Lot': 'Kent Surface Lot at Kent Station',
-              #'Lynnwood TC': 'Lynnwood Transit Center',
-              #'Lynnwood TC Garage': 'Lynnwood Transit Center', # Apr 2023, seems to be new version of Lynnwood TC
+              'Lynnwood TC Garage': 'Lynnwood Transit Center',
               'Mercer Island': 'Mercer Island P&R',
-              #'Puyallup Garage': '', # new garage, capacity included in main station capacity
-              #'Puyallup Station Suface Lots': 'Puyallup Train Station', # capacity included in main station capacity
-              #'Puyallup Surface Lot E': '', # capacity included in main station capacity
+              'Puyallup Station': 'Puyallup Train Station',
               'South Bellevue': 'South Bellevue P&R',
+              'Sumner Station': 'Sumner Train Station',
               'Tukwila Station': 'Tukwila Sounder Station',
               'Tukwila Station (TIBS)': 'Tukwila International Blvd Station'}
      })
@@ -167,53 +167,7 @@ sound_data = sound_data.replace(
 # Combine datasets
 processed_tables = [king_data, kitsap_data, pierce_data, community_data, sound_data]
 
-#### find somewhere to save this function
-def combine_processed_data(table_list, year):
-    """Combines processed park & ride datasets and prepares for insertion into Elmer facts table."""
-    
-    # Only run if there are five datasets passed to the function
-    if len(table_list) == 5:
-        print('Processing data to prepare for insertion into Elmer.')
-        
-        # Combine data from agencies, then sort and strip leading/trailing spaces from names
-        df = pd.concat(table_list).sort_values(by=['name'])
-        df['name'] = df['name'].map(lambda x: x.strip())
-        
-        # Combine processed data with dim table from Elmer
-        conn_string = (
-            r'Driver=SQL Server;'
-            r'Server=AWS-Prod-SQL\Sockeye;'
-            r'Database=Elmer;'
-            r'Trusted_Connection=yes;'
-        )
-
-        sql_conn = pyodbc.connect(conn_string)
-
-        # dim table
-        master_dim_df = pd.read_sql(sql='select * from park_and_ride.lot_dim', con=sql_conn)
-        
-        final_data = pd.merge(df, master_dim_df,
-                              left_on='name', right_on='lot_name',
-                              how='left')
-        
-        final_data.rename({'notes_x': 'notes',
-                           'notes_y': 'lot_dim_notes'},
-                          axis=1, inplace=True)
-        
-        # Add data year to final data
-        final_data.insert(0, 'data_year', year)
-        
-        # Check data
-        owner_check = final_data.loc[:, ['agency', 'name', 'owner_status', 'ownership_status', 'lot_name']].sort_values('owner_status')
-        lot_id_check = final_data[final_data.duplicated('lot_dim_id', keep=False)]
-        
-        return final_data, owner_check, lot_id_check
-    
-    else:
-        print("The supplied list does not have the correct number of datasets.")
-####
-
-combined_data, owner_check, lot_id_check = combine_processed_data(processed_tables, 2023)
+combined_data, owner_check, lot_id_check = com.combine_processed_data(processed_tables, 2023)
 
 # Subset final data for insert into fact table in Elmer
 data_upload = combined_data.loc[:, ['lot_dim_id', 'data_year', 'capacity', 'occupancy', 'notes']].sort_values('lot_dim_id')
@@ -223,6 +177,7 @@ engine = create_engine('mssql+pyodbc:///?odbc_connect={}'.format(conn_string))
 
 # FINAL STEP ---------------------------------------------------------------------------------------
 # Insert new data into fact table in Elmer
+# Output displays '-1' which means the dataframe has multiple rows
 data_upload.to_sql(name='park_and_ride_facts',
                    con=engine,
                    schema='park_and_ride',
