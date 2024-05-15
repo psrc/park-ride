@@ -83,16 +83,18 @@ def process_sound_transit(year):
     processed['notes'] = None
     processed.insert(0, 'agency', 'Sound Transit')
     
-    # remove lots that are maintained by other agencies
+    # remove lots that are maintained by other agencies or other reasons
     processed.drop(processed[(processed.name == 'Auburn Station') |
                              (processed.name == 'DuPont') |
                              (processed.name == 'Eastmont') |
                              (processed.name == 'Kent Station') |
+                             (processed.name == 'Lynnwood TC') |
+                             (processed.name == 'Puyallup Garage') |
+                             (processed.name == 'Puyallup Station Suface Lots') |
+                             (processed.name == 'Puyallup Surface Lot E') |
                              (processed.name == 'Puyallup Red Lot (Fairgrounds)') |
-                             #(processed.name == 'Puyallup Station') |
                              (processed.name == 'South Everett Freeway Station') |
                              (processed.name == 'South Hill') |
-                             #(processed.name == 'Sumner Station') |
                              (processed.name == 'Tacoma Dome Station Garage')
                              ].index, inplace=True)
     
@@ -100,6 +102,10 @@ def process_sound_transit(year):
     # DuPont: belongs to Pierce Transit
     # Eastmont: belongs to Community Transit
     # Kent Station: combination of Kent Garage and Kent Surface Parking Lot
+    # Lynnwood TC: new 'Lynnwood TC Garage' supercedes this record as of Apr 2023
+    # Puyallup Garage: capacity part of Puyallup Train Station
+    # Puyallup Station Suface Lots: capacity part of Puyallup Train Station
+    # Puyallup Surface Lot E: capacity part of Puyallup Train Station
     # Puyallup Red Lot (Fairgrounds): belongs to Pierce Transit
     # South Everett Freeway Station: belongs to Community Transit
     # South Hill: belongs to Pierce Transit as South Hill P&R
