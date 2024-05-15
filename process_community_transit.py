@@ -2,7 +2,6 @@ import pandas as pd
 import os
 import pyodbc  # for Elmer connection
 
-
 def process_community_transit(year):
     """Process park & ride data from Community Transit using current project year."""
 
@@ -89,71 +88,3 @@ def process_community_transit(year):
 
     print('All done.')
     return df, maybe_new_lots
-
-
-def clean_names_community_transit():
-    """Clean names of park & ride lots from Community Transit to match master data."""
-
-    print('Begin renaming process for aligning Community Transit park & ride data.')
-
-    # view data from Pierce Transit
-    community_data = process_community_transit()
-
-    print('Connecting to Elmer to pull master data park and ride lots')
-    # connect to master data
-    conn_string = (
-        r'Driver=SQL Server;'
-        r'Server=AWS-Prod-SQL\Sockeye;'
-        r'Database=Elmer;'
-        r'Trusted_Connection=yes;')
-
-    sql_conn = pyodbc.connect(conn_string)
-
-    # dim table
-    master_dim_df = pd.read_sql(
-        sql='select * from park_and_ride.lot_dim', con=sql_conn)
-
-    # facts table
-    master_facts_df = pd.read_sql(
-        sql='select * from park_and_ride.park_and_ride_facts', con=sql_conn)
-
-    # join so that lots have capacity numbers for checking against new data
-    master_df = pd.merge(master_dim_df, master_facts_df,
-                         left_on='lot_dim_id', right_on='lot_dim_id',
-                         how="inner")
-
-    # filter lots in Community County from master df
-    community_master = master_df[master_df['maintainer_agency'].isin(['Community Transit'])]
-
-    # merge data frames - keep only the current records to determine which ones don't line up with the master list
-    community_lots_merge = pd.merge(community_master, community_data,
-                                    left_on='lot_name', right_on='name',
-                                    how="right")
-
-    # remove lots that are in master and do not match in Community Transit data
-    maybe_new_lots = community_lots_merge[community_lots_merge['lot_name'].isnull()]
-    
-    maybe_new_lots.rename({'capacity_y': 'capacity', 'occupancy_y': 'occupancy'}, axis=1, inplace=True)
-    
-    community_new_lots = maybe_new_lots.loc[:, ['agency', 'owner_status', 'name', 'address', 'capacity', 'occupancy']]
-
-    print('Renaming lots with inconsistent names')
-    # rename 13 'new' lots - those in the new data set that don't match the master list
-    community_data_renamed = community_data.replace({'name': {'Arlington': 'Arlington P&R',
-                                                              'Canyon Park': 'Canyon Park P&R',
-                                                              'Eastmont': 'Eastmont P&R',
-                                                              'Edmonds': 'Edmonds P&R',
-                                                              'Freeborn': 'Freeborn Park and Ride',
-                                                              'I-5 @ SR 531': 'I-5 at SR 531',
-                                                              'Lake Stevens': 'Lake Stevens Transit Center',
-                                                              'Mariner': 'Mariner P&R',
-                                                              'Marysville Cedar and Grove': 'Marysville at Cedar & Grove',
-                                                              'Monroe': 'Monroe P&R',
-                                                              'Mountlake Terrace': 'Mountlake Terrace Transit Center',
-                                                              'Snohomish': 'Snohomish P&R',
-                                                              'South Everett': 'South Everett Freeway Station'}})
-    
-    # remove Lynnwood lot - used in Sound Transit data instead
-    community_data_renamed = community_data_renamed.drop(community_data_renamed[community_data_renamed.name == 'Lynnwood'].index)
-
-    return community_data_renamed
