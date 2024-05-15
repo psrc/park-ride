@@ -2,19 +2,18 @@ import pandas as pd
 import os
 import pyodbc  # for Elmer connection
 
-
-def process_pierce_transit():
-    """Process 2022 park & ride data from Pierce Transit."""
+def process_pierce_transit(year):
+    """Process park & ride data from Pierce Transit using current project year."""
 
     print('Begin processing Pierce Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/2022/Pierce Transit/'
+    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/Pierce Transit/'
     dir_list = os.listdir(file_path)
 
     # Read xlsx file in folder
     df = pd.read_excel(
-        io=file_path + dir_list[0], sheet_name='2022',  header=1, skipfooter=25)
+        io=file_path + dir_list[0], sheet_name=str(year), header=1, skipfooter=25)
 
     # Remove leading spaces for column names
     df.columns = df.columns.str.strip()
@@ -32,13 +31,14 @@ def process_pierce_transit():
 
     # Create column with average occupancy
     df["occupancy"] = df.loc[:, [
-        col for col in df if col.startswith('Unnamed')]].mean(axis=1).round(0)
+        col for col in df if col.startswith('Unnamed')]].mean(axis=1).astype(float).round(0)
 
     # Remove all month columns
     df.drop(df.filter(regex='Unnamed').columns, axis=1, inplace=True)
 
     # Remove extra rows from formatted excel workbook
     df = df[(df["name"].str.contains("Subtotal") == False) &
+            (df["name"].str.contains("Grand Total") == False) &
             (df['capacity'].notna()) &
             (df['occupancy'].notna())]
 
@@ -62,19 +62,14 @@ def process_pierce_transit():
 
     # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()
-
-    print('All done.')
-    return df
-
-
-def clean_names_pierce_transit():
-    """Clean names of 2022 park & ride lots from Pierce Transit to match master data."""
-
-    print('Begin renaming process for aligning Pierce Transit park & ride data.')
-
-    # view data from Pierce Transit
-    pierce_data = process_pierce_transit()
-
+    
+    # remove lots maintained by Sound Transit
+    df.drop(df[(df.name == 'Bonney Lake (SR410)') |
+               (df.name == 'Lakewood Station') |
+               (df.name == 'S. Tacoma Station') |
+               (df.name == 'Puyallup Train Station') |
+               (df.name == 'Sumner Train Station')].index, inplace=True)
+    
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
     conn_string = (
@@ -97,40 +92,21 @@ def clean_names_pierce_transit():
     master_df = pd.merge(master_dim_df, master_facts_df,
                          left_on='lot_dim_id', right_on='lot_dim_id',
                          how="inner")
-    # master_df2 = master_df.drop_duplicates(subset=['lot_dim_id'])
-
-    # print names of columns in master dataframe
-    # print(master_df.columns.tolist())
 
     # filter lots in Pierce County from master df
     pierce_master = master_df[master_df['county_name'].str.contains('Pierce')]
-    # pierce_master = master_df[master_df['maintainer_agency'].isin(['Pierce Transit', 'WSDOT'])]
 
-    # merge data frames - keep only the 2022 records to determine which ones don't line up with the master list
-    pierce_lots_merge22 = pd.merge(pierce_master, pierce_data,
-                                   left_on='lot_name', right_on='name',
-                                   how="right")
+    # merge data frames - keep only the current records to determine which ones don't line up with the master list
+    pierce_lots_merge = pd.merge(pierce_master, df,
+                                 left_on='lot_name', right_on='name',
+                                 how="right")
 
-    # remove lots that are in master and do not match in Pierce data
-    # this step and the next should be run manually before running the function
-    maybe_new_lots = pierce_lots_merge22[pierce_lots_merge22['lot_name'].isnull()]
-
-    print('Renaming lots with inconsistent names')
-    # rename 10 'new' lots - those in the new data set that don't match the master list
-    pierce_data_renamed = pierce_data.replace(
-        {'name': {'72nd St. Transit Center': '72nd St Transit Center',
-                  'Center St': 'Center Street',
-                  'DuPont': 'Dupont Station',
-                  'Narrows/Skyline': 'Narrows P&R',
-                  'North Gig Harbor (Kimball Drive)': 'Kimball Dr P&R',
-                  'Puyallup Red lot': 'Puyallup Red Lot',
-                  'S. Tacoma Station': 'South Tacoma Station',
-                  'South Purdy': 'South Purdy P&R',
-                  'South Tacoma East I (north side)': 'South Tacoma East 1 (North side)',
-                  'South Tacoma East II (south side)': 'South Tacoma East 2 (South side)'}
-         })
+    # remove lots that are in master and do not match in Pierce Transit data
+    maybe_new_lots = pierce_lots_merge[pierce_lots_merge['lot_name'].isnull()]
     
-    # remove Bonney Lake lot - used in Sound Transit data instead
-    pierce_data_renamed = pierce_data_renamed.drop(pierce_data_renamed[pierce_data_renamed.name == 'Bonney Lake (SR410)'].index)
+    maybe_new_lots.rename({'capacity_y': 'capacity', 'occupancy_y': 'occupancy'}, axis=1, inplace=True)
+    
+    maybe_new_lots = maybe_new_lots.loc[:, ['agency', 'owner_status', 'name', 'address', 'capacity', 'occupancy']].sort_values(by='name')
 
-    return pierce_data_renamed
+    print('All done.')
+    return df, maybe_new_lots
