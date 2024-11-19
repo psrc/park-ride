@@ -37,8 +37,8 @@ create_avail_occ_chart <- function(df, geo) {
     e_tooltip(trigger = "item") %>% 
     e_color(color = psrc_colors$pognbgy_5, background = "white") %>% 
     e_x_axis(Year, axisLabel = list(interval = 3), axisTick = list(inside = TRUE, alignWithLabel = TRUE, interval = 3)) %>% 
-    e_legend(bottom = 10) %>% 
-    e_title("Available Spaces and Occupied Spaces")
+    e_legend(bottom = 10) #%>% 
+    #e_title("Available Spaces and Occupied Spaces")
   
   return(chart)
   
@@ -79,8 +79,8 @@ create_percent_occ_chart <- function(df, geo) {
     e_color(color = psrc_colors$pognbgy_5[[4]], background = "white") %>% 
     e_x_axis(Year, axisLabel = list(interval = 3), axisTick = list(inside = TRUE, alignWithLabel = TRUE, interval = 3)) %>% 
     e_y_axis(formatter = e_axis_formatter("percent", digits = 0)) %>% 
-    e_legend(bottom = 10) %>% 
-    e_title("Percent of Available Spaces Occupied")
+    e_legend(show = FALSE) #%>% 
+    #e_title("Percent of Available Spaces Occupied")
   
   return(chart)
   
@@ -109,8 +109,8 @@ create_number_lots_chart <- function(df, geo) {
     e_tooltip(trigger = "item") %>% 
     e_color(color = psrc_colors$pognbgy_5[[3]], background = "white") %>% 
     e_x_axis(Year, axisLabel = list(interval = 3), axisTick = list(inside = TRUE, alignWithLabel = TRUE, interval = 3)) %>% 
-    e_legend(bottom = 10) %>% 
-    e_title("Number of Lots")
+    e_legend(show = FALSE) #%>% 
+    #e_title("Number of Lots")
   
   return(chart)
   
@@ -165,6 +165,10 @@ create_park_ride_map <- function(gdf, geo, year) {
   ) %>% 
     lapply(htmltools::HTML)
   
+  map_bounds <- filter(subarea_extents, subarea == geo)
+  
+  button_text <- paste0("function(btn, map){map.setView([", map_bounds$lat_mid, ",", map_bounds$long_mid, "],", map_bounds$zoom, "); }")
+  
   map <- leaflet() %>% 
     addProviderTiles(providers$CartoDB.Positron) %>% 
     addCircleMarkers(data = pgdf,
@@ -185,11 +189,14 @@ create_park_ride_map <- function(gdf, geo, year) {
               pal = map_palette,
               values = gdf$`Ownership Type`,
               opacity = 1) %>% 
-    setView(lng = -122.257, lat = 47.615, zoom = 8.5) %>% 
+    #setView(lng = -122.257, lat = 47.615, zoom = 8.5) %>% 
+    setView(lng = map_bounds$long_mid, lat = map_bounds$lat_mid, zoom = map_bounds$zoom) %>% 
     addEasyButton(easyButton(
       icon = "fa-globe",
-      title ="Region",
-      onClick=JS("function(btn, map){map.setView([47.615,-122.257],8.5); }")))
+      title ="Recenter",
+      #onClick=JS("function(btn, map){map.setView([47.615,-122.257],8.5); }")
+      onClick=JS(button_text)
+      ))
   
   return(map)
   

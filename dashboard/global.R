@@ -48,3 +48,7 @@ map_palette <- colorFactor(palette = c("#00A7A0", "#F05A28"),
 year_list <- rev(as.character(unique(park_ride_data$Year)))
 
 subarea_list <- unique(park_ride_data$subarea) %>% c("Region", .)
+
+utilization_list <- c("All", "<90%", ">=90%")
+
+subarea_extents <- read_csv("map_extents.csv")
