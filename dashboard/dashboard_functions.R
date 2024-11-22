@@ -116,17 +116,35 @@ create_number_lots_chart <- function(df, geo) {
   
 }
 
-create_park_ride_map <- function(gdf, geo, year) {
+create_park_ride_map <- function(gdf, geo, year, util_cat) {
   
   if (geo != "Region") {
     
-    gdf <- gdf %>% 
-      filter(subarea == geo, Year == year)
+    if (util_cat == "All") {
+      
+      gdf <- gdf %>% 
+        filter(subarea == geo, Year == year)
+      
+    } else {
+      
+      gdf <- gdf %>% 
+        filter(subarea == geo, Year == year, utilization_category == util_cat)
+      
+    }
     
   } else {
     
-    gdf <- gdf %>% 
-      filter(Year == year)
+    if (util_cat == "All") {
+      
+      gdf <- gdf %>% 
+        filter(Year == year)
+      
+    } else {
+      
+      gdf <- gdf %>% 
+        filter(Year == year, utilization_category == util_cat)
+      
+    }
     
   }
   
@@ -189,12 +207,10 @@ create_park_ride_map <- function(gdf, geo, year) {
               pal = map_palette,
               values = gdf$`Ownership Type`,
               opacity = 1) %>% 
-    #setView(lng = -122.257, lat = 47.615, zoom = 8.5) %>% 
     setView(lng = map_bounds$long_mid, lat = map_bounds$lat_mid, zoom = map_bounds$zoom) %>% 
     addEasyButton(easyButton(
       icon = "fa-globe",
       title ="Recenter",
-      #onClick=JS("function(btn, map){map.setView([47.615,-122.257],8.5); }")
       onClick=JS(button_text)
       ))
   

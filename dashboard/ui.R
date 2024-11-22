@@ -10,37 +10,41 @@ shinyUI(
     hr(style = "border-top: 1px solid #000000;"),
     layout_column_wrap(
       width = 1/2,
-      #height = "800px",
       layout_column_wrap(
         width = 1,
         fillable = FALSE,
         card(full_screen = TRUE,
+             max_height = "350px",
              card_header("Available Spaces and Occupied Spaces"),
              card_body(class = "p-0",
                        echarts4rOutput("av_occ_chart"))),
         card(full_screen = TRUE,
+             max_height = "350px",
              card_header("Percent of Available Spaces Occupied"),
              card_body(class = "p-0",
                        echarts4rOutput("percent_occ_chart"))),
         card(full_screen = TRUE,
+             max_height = "350px",
              card_header("Number of Lots"),
              card_body(class = "p-0",
                        echarts4rOutput("num_lots_chart")))
       ),
-      layout_column_wrap(
-        width = 1,
-        #height = "800px",
-        #fillable = FALSE,
+      card(
+        fill = FALSE,
+        full_screen = TRUE,
         layout_column_wrap(
           width = 1/2,
           card_body(selectizeInput("yearRange",
                                    label = "Select A Year",
                                    choices = year_list,
-                                   options = list(dropdownParent = "body")))
+                                   options = list(dropdownParent = "body"))),
+          card_body(radioButtons("utilRate",
+                                 label = "Select Lot Utilization Rate",
+                                 choices = utilization_list,
+                                 inline = TRUE))
         ),
-        card(full_screen = TRUE,
-             card_body(class = "p-0",
-                       leafletOutput("lot_map")))
+        leafletOutput("lot_map",
+                      height = 940)
       )
     )
   )

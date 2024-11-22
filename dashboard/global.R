@@ -34,7 +34,6 @@ park_ride_data <- get_query(table_query) %>%
 
 park_ride_sf <- st_as_sf(park_ride_data, coords = c("x_coord", "y_coord"), crs = 2285) %>% 
   st_transform(crs = 4326) %>% 
-  #filter(Year == "2023") %>% 
   mutate(lng = st_coordinates(.)[,1],
          lat = st_coordinates(.)[,2])
 
