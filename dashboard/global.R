@@ -7,7 +7,6 @@ library(bslib)
 
 # Data Cleaning/Processing
 library(tidyverse)
-library(psrcelmer)
 
 # Chart Creation
 library(psrcplot)
@@ -22,13 +21,7 @@ source("dashboard_functions.R")
 
 # Inputs --------------------------------------------------------------------------------------
 
-table_query <- "SELECT * FROM park_and_ride.v_park_and_ride_dashboard"
-
-# Pull data from Elmer ------------------------------------------------------------------------
-
-park_ride_data <- get_query(table_query) %>% 
-  mutate(Year = as.factor(Year),
-         `Ownership Type` = factor(`Ownership Type`, levels = c("Permanent", "Leased")))
+park_ride_data <- readRDS("data_inputs/dashboard_data.rds")
 
 # Create spatial dataframe for mapping --------------------------------------------------------
 
@@ -50,4 +43,4 @@ subarea_list <- unique(park_ride_data$subarea) %>% c("Region", .)
 
 utilization_list <- c("All", "<90%", ">=90%")
 
-subarea_extents <- read_csv("map_extents.csv")
+subarea_extents <- read_csv("data_inputs/map_extents.csv")

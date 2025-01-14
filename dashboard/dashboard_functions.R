@@ -155,14 +155,14 @@ create_park_ride_map <- function(gdf, geo, year, util_cat) {
     "Park & Ride Name: <strong>%s</strong><br/>
      Ownership Type: <strong>%s</strong><br/>
      Year: <strong>%s</strong><br/>
-     Available Spaces: <strong>%i</strong><br/>
-     Occupied Spaces: <strong>%i</strong><br/>
+     Available Spaces: <strong>%s</strong><br/>
+     Occupied Spaces: <strong>%s</strong><br/>
      Percent Occupied: <strong>%s</strong><br/>",
     pgdf$`Park & Ride Name`,
     pgdf$`Ownership Type`,
     pgdf$Year,
-    pgdf$`Available Spaces`,
-    pgdf$`Occupied Spaces`,
+    prettyNum(pgdf$`Available Spaces`, big.mark = ","),
+    prettyNum(pgdf$`Occupied Spaces`, big.mark = ","),
     paste0(round(pgdf$`Percent Utilized`*100, 0), "%")
   ) %>% 
     lapply(htmltools::HTML)
@@ -171,14 +171,14 @@ create_park_ride_map <- function(gdf, geo, year, util_cat) {
     "Park & Ride Name: <strong>%s</strong><br/>
      Ownership Type: <strong>%s</strong><br/>
      Year: <strong>%s</strong><br/>
-     Available Spaces: <strong>%i</strong><br/>
-     Occupied Spaces: <strong>%i</strong><br/>
+     Available Spaces: <strong>%s</strong><br/>
+     Occupied Spaces: <strong>%s</strong><br/>
      Percent Occupied: <strong>%s</strong><br/>",
     lgdf$`Park & Ride Name`,
     lgdf$`Ownership Type`,
     lgdf$Year,
-    lgdf$`Available Spaces`,
-    lgdf$`Occupied Spaces`,
+    prettyNum(lgdf$`Available Spaces`, big.mark = ","),
+    prettyNum(lgdf$`Occupied Spaces`, big.mark = ","),
     paste0(round(lgdf$`Percent Utilized`*100, 0), "%")
   ) %>% 
     lapply(htmltools::HTML)

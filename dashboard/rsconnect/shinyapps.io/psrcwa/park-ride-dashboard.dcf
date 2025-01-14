@@ -1,0 +1,10 @@
+name: park-ride-dashboard
+title: Park-and-Ride Trends Dashboard
+username: psrcwa
+account: psrcwa
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 13562812
+bundleId: 9648916
+url: https://psrcwa.shinyapps.io/park-ride-dashboard/
+version: 1
