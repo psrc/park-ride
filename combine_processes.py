@@ -16,16 +16,16 @@ import process_combined_data as com
 # connection string for Elmer
 conn_string = (
     r'Driver=SQL Server;'
-    r'Server=AWS-Prod-SQL\Sockeye;'
+    r'Server=SQLserver;'
     r'Database=Elmer;'
     r'Trusted_Connection=yes;'
 )
 
 #---------------------------------------------------------------------------------------------------
 # Process King County Metro data and clean names
-king_data, king_new_lots = kcm.process_king_county_metro(2023)
+king_data, king_new_lots = kcm.process_king_county_metro(2024)
 
-# rename 33 'new' lots - those in the new data set that don't match the master list
+# rename 34 'new' lots - those in the new data set that don't match the master list
 king_data = king_data.replace(
     {'name': {'Auburn': 'Auburn P&R',
               'Bear Creek': 'Bear Creek P&R',
@@ -35,8 +35,9 @@ king_data = king_data.replace(
               'Church by the Side of the Road (THE)': 'Church by the Side of the Road',
               'Duvall': 'Duvall P&R',
               'East Hill Friends': 'East Hill Friends Church',
-              # combine garage with Eastgate P&R
+              # combine garage and surface
               'Eastgate (Garage)': 'Eastgate P&R',
+              'Eastgate (Surface)': 'Eastgate P&R',
               'Federal Way / S 320th Street P&R': 'Federal Way/S 320th St',
               'Greenlake / I-5 & 65th St.': 'Greenlake (I-5/NE 65th St)',
               'Issaquah Highlands': 'Issaquah Highlands P&R',
@@ -58,11 +59,15 @@ king_data = king_data.replace(
               # combine garage and surface
               'South Kirkland (Garage)': 'South Kirkland P&R',
               'South Sammamish': 'South Sammamish P&R',
-              'St. Luke\'s Lutheran Church - Federal Way': 'St. Luke\'s Lutheran Church-Federal Way',
+              #'St. Luke\'s Lutheran Church - Federal Way': 'St. Luke\'s Lutheran Church-Federal Way',
+              'SW Spokane': 'Southwest Spokane St P&R',
               'The Vine Church (formerly Bethany Bible)': 'The Vine Church',
               'Tibbetts Valley Park': 'Tibbett\'s Valley Park',
               'Tukwila': 'Tukwila P&R'}
      })
+
+# New lots ----------------------------
+# Southwest Spokane St P&R, previously not reported and added to database Mar 2025 
 
 # group by name and recalculate/rebuild
 king_data = king_data.groupby(['name'], as_index=False).agg(
@@ -79,15 +84,14 @@ king_data['notes'] = None
 
 #---------------------------------------------------------------------------------------------------
 # Process Kitsap Transit data and clean names
-kitsap_data, kitsap_new_lots = kt.process_kitsap_transit(2023)
+kitsap_data, kitsap_new_lots = kt.process_kitsap_transit(2024)
 
-# rename 13 'new' lots - those in the new data set that don't match the master list
+# rename 12 'new' lots - those in the new data set that don't match the master list
 kitsap_data = kitsap_data.replace(
     {'name': {'1st United Methodist Church': 'First United Methodist Church',
               'Annapolis Park & Ride': 'Annapolis P&R',
               'Burly Bible Church': 'Burley Bible Church',
               'Crossroads Church': 'Crossroads Neighborhood Church',
-              'Day Road & SR 305': 'Day Rd & SR 305',
               'Gateway Center': 'Gateway',
               'George\'s Corners': 'George\'s Corner',
               'Harper Free Evangelical Church': 'Harper Evangelical Free Church',
@@ -100,16 +104,15 @@ kitsap_data = kitsap_data.replace(
 
 #---------------------------------------------------------------------------------------------------
 # Process Pierce Transit data and clean names
-pierce_data, pierce_new_lots = pt.process_pierce_transit(2023)
+pierce_data, pierce_new_lots = pt.process_pierce_transit(2024)
 
-# rename 10 'new' lots - those in the new data set that don't match the master list
+# rename 8 'new' lots - those in the new data set that don't match the master list
 pierce_data = pierce_data.replace(
     {'name': {'72nd St. Transit Center': '72nd St Transit Center',
               'Center St': 'Center Street',
               'DuPont': 'Dupont Station',
               'Narrows/Skyline': 'Narrows P&R',
               'North Gig Harbor (Kimball Drive)': 'Kimball Dr P&R',
-              'Puyallup Red lot': 'Puyallup Red Lot',
               'South Purdy': 'South Purdy P&R',
               'South Tacoma East I (north side)': 'South Tacoma East 1 (North side)',
               'South Tacoma East II (south side)': 'South Tacoma East 2 (South side)'}
@@ -117,9 +120,9 @@ pierce_data = pierce_data.replace(
 
 #---------------------------------------------------------------------------------------------------
 # Process Community Transit data and clean names
-community_data, community_new_lots = ct.process_community_transit(2023)
+community_data, community_new_lots = ct.process_community_transit(2024)
 
-# rename 13 'new' lots - those in the new data set that don't match the master list
+# rename 12 'new' lots - those in the new data set that don't match the master list
 community_data = community_data.replace(
     {'name': {'Arlington': 'Arlington P&R',
               'Canyon Park': 'Canyon Park P&R',
@@ -131,28 +134,32 @@ community_data = community_data.replace(
               'Mariner': 'Mariner P&R',
               'Marysville Cedar and Grove': 'Marysville at Cedar & Grove',
               'Monroe': 'Monroe P&R',
-              'Mountlake Terrace': 'Mountlake Terrace Transit Center',
               'Snohomish': 'Snohomish P&R',
               'South Everett': 'South Everett Freeway Station'}
      })
 
 #---------------------------------------------------------------------------------------------------
 # Process Sound Transit data and clean names
-sound_data, sound_new_lots = st.process_sound_transit(2023)
+sound_data, sound_new_lots = st.process_sound_transit(2024)
 
-# rename 15 'new' lots - those in the new data set that don't match the master list
+# rename 19 'new' lots - those in the new data set that don't match the master list
 sound_data = sound_data.replace(
     {'name': {'Auburn Garage': 'Auburn Garage at Auburn Station',
               'Auburn Surface Parking Lot': 'Auburn Surface Lot at Auburn Station',
               'Bonney Lake': 'Bonney Lake South (SR 410)',
-              'Edmonds (Ft. Wayne)': 'Edmonds Station Leased Lot Salish Crossings',
+              #'Edmonds (Ft. Wayne)': 'Edmonds Station Leased Lot Salish Crossings',
               'Federal Way TC': 'Federal Way Transit Center',
               'Issaquah TC': 'Issaquah Transit Center',
               'Kent Garage': 'Kent Garage at Kent Station',
               'Kent Surface Parking Lot': 'Kent Surface Lot at Kent Station',
-              'Lynnwood TC Garage': 'Lynnwood Transit Center',
+              'Lynnwood City Center Garage': 'Lynnwood City Center Station Garage',
+              'Lynnwood City Center Surface Lots': 'Lynnwood City Center Station Surface Lots',
               'Mercer Island': 'Mercer Island P&R',
+              'Mountlake Terrace Garage': 'Mountlake Terrace Station Garage',
+              'Mountlake Terrace Surface Lot': 'Mountlake Terrace Station Surface Lot',
               'Puyallup Station': 'Puyallup Train Station',
+              'Shoreline North/185th': 'Shoreline North/185th Station',
+              'Shoreline South/148th': 'Shoreline South/148th Station',
               'South Bellevue': 'South Bellevue P&R',
               'Sumner Station': 'Sumner Train Station',
               'Tukwila Station': 'Tukwila Sounder Station',
@@ -160,14 +167,17 @@ sound_data = sound_data.replace(
      })
 
 # New lots ----------------------------
-# BelRed Station, added in Dec 2023
-# Redmond Technology Center Garage (RTS), added in Dec 2023
+# Lynnwood City Center Station Garage, official rename of Lynnwood TC in 2024
+# Lynnwood City Center Station Surface Lots, added in Sept 2024
+# Mountlake Terrace Station Garage, official rename of MT TC in 2024
+# Mountlake Terrace Station Surface Lot, added in Sept 2024
+# Shoreline North & South, added in Sept 2024
 
 #---------------------------------------------------------------------------------------------------
 # Combine datasets
 processed_tables = [king_data, kitsap_data, pierce_data, community_data, sound_data]
 
-combined_data, owner_check, lot_id_check = com.combine_processed_data(processed_tables, 2023)
+combined_data, owner_check, lot_id_check = com.combine_processed_data(processed_tables, 2024)
 
 # Subset final data for insert into fact table in Elmer
 data_upload = combined_data.loc[:, ['lot_dim_id', 'data_year', 'capacity', 'occupancy', 'notes']].sort_values('lot_dim_id')

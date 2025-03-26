@@ -14,26 +14,26 @@ def process_community_transit(year):
     # Read xlsx file in folder
     df = pd.read_excel(
         io=file_path + dir_list[0], sheet_name=0,
-        header=1)
+        skipfooter=2)
 
     # Remove extra columns
-    df.drop(['AVG_Utilization'], axis=1, inplace=True)
+    df.drop(['AVG Utilization', 'Owner', 'Maintenance'], axis=1, inplace=True)
 
     # Remove leading spaces for column names
     df.columns = df.columns.str.strip()
 
     # Rename column names
-    df.rename({'Facility_Type': 'owner_status',
+    df.rename({'Facility Type': 'owner_status',
                'Facility': 'name',
-               'Facility_Address': 'address',
-               'AVG_Stall_Count': 'capacity',
-               'AVG_Parked_Vehicles': 'occupancy'},
+               'Facility Address': 'address',
+               'AVG Stall Count': 'capacity',
+               'AVG Parked Vehicles': 'occupancy'},
               axis=1, inplace=True)
 
     # Change ownership_status options
-    df['owner_status'].replace({'MAJOR': 'permanent',
-                                'MINOR': 'permanent',
-                                'LEASE': 'lease'},
+    df['owner_status'].replace({'Major Park & Ride (>= 250 Parking Stalls)': 'permanent',
+                                'Minor Park & Ride (<250 Stalls)': 'permanent',
+                                'Leased Lot': 'leased'},
                                inplace=True)
     
     # Create notes column
@@ -45,14 +45,15 @@ def process_community_transit(year):
     # Ensure all column names are lowercase
     df.columns = df.columns.str.lower()
     
-    # remove Lynnwood lot - used in Sound Transit data instead
-    df = df.drop(df[df.name == 'Lynnwood'].index)
+    # remove Lynnwood and Mountlake Terrace lots - used in Sound Transit data instead
+    df = df.drop(df[(df.name == 'Lynnwood') |
+                    (df.name == 'Mountlake Terrace')].index)
     
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
     conn_string = (
         r'Driver=SQL Server;'
-        r'Server=AWS-Prod-SQL\Sockeye;'
+        r'Server=SQLserver;'
         r'Database=Elmer;'
         r'Trusted_Connection=yes;')
 

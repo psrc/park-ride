@@ -15,7 +15,7 @@ def combine_processed_data(table_list, year):
         # Combine processed data with dim table from Elmer
         conn_string = (
             r'Driver=SQL Server;'
-            r'Server=AWS-Prod-SQL\Sockeye;'
+            r'Server=SQLserver;'
             r'Database=Elmer;'
             r'Trusted_Connection=yes;'
         )

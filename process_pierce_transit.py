@@ -74,7 +74,7 @@ def process_pierce_transit(year):
     # connect to master data
     conn_string = (
         r'Driver=SQL Server;'
-        r'Server=AWS-Prod-SQL\Sockeye;'
+        r'Server=SQLserver;'
         r'Database=Elmer;'
         r'Trusted_Connection=yes;')
 
