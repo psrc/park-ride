@@ -13,12 +13,12 @@ def process_king_county_metro(year):
 
     # Read xlsx file in folder
     df = pd.read_excel(
-        io=file_path + dir_list[0], sheet_name=0, usecols='A:D'#, skipfooter=1
+        io=file_path + dir_list[0], sheet_name=0, usecols='A:D'
         )
 
     # Generate year averages from monthly/quarterly values
-    df = df.groupby(['Name'], as_index=False).agg(capacity = ('Total Capacity (# of stalls)', 'mean'),
-                                                  occupancy = ('Mthly - Veh Count', 'mean'))
+    df = df.groupby(['Name'], as_index=False).agg(capacity = ('Total Capacity (# stalls)', 'mean'),
+                                                  occupancy = ('Vehicle Count', 'mean'))
 
     # Remove (KC) from names
     df['Name'] = df['Name'].str.replace(r'\(KC\)', '', regex=True).str.strip()
@@ -43,7 +43,7 @@ def process_king_county_metro(year):
     # connect to master data
     conn_string = (
         r'Driver=SQL Server;'
-        r'Server=AWS-Prod-SQL\Sockeye;'
+        r'Server=SQLserver;'
         r'Database=Elmer;'
         r'Trusted_Connection=yes;')
 

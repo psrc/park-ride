@@ -3,6 +3,7 @@ shinyUI(
   page_fillable(
     fillable = FALSE,
     theme = bs_theme(base_font = "Poppins", local = TRUE),
+    h1("Park-and-Ride Trends Dashboard"),
     card_body(selectizeInput("subarea",
                              label = "Select Area",
                              choices = subarea_list,
