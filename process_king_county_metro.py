@@ -62,7 +62,7 @@ def process_king_county_metro(year):
                          left_on='lot_dim_id', right_on='lot_dim_id',
                          how="inner")
 
-    # remove lots from Sound Transit
+    # filter King County Metro lots from master df
     king_master = master_df[master_df['maintainer_agency'].isin(['King County Metro Transit'])]
 
     # merge data frames - keep only the current records to determine which ones don't line up with the master list
