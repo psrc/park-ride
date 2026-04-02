@@ -2,18 +2,18 @@ import pandas as pd
 import os
 import pyodbc  # for Elmer connection
 
-def process_pierce_transit(year):
+def process_pierce_transit(config):
     """Process park & ride data from Pierce Transit using current project year."""
 
     print('Begin processing Pierce Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/Pierce Transit/'
+    file_path = config['project_path'] + str(config['year']) + '/Pierce Transit/'
     dir_list = os.listdir(file_path)
 
     # Read xlsx file in folder
     df = pd.read_excel(
-        io=file_path + dir_list[0], sheet_name=str(year), header=1, skipfooter=25)
+        io=file_path + dir_list[0], sheet_name=str(config['year']), header=1, skipfooter=32)
 
     # Remove leading spaces for column names
     df.columns = df.columns.str.strip()
@@ -72,13 +72,7 @@ def process_pierce_transit(year):
     
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
-    conn_string = (
-        r'Driver=SQL Server;'
-        r'Server=SQLserver;'
-        r'Database=Elmer;'
-        r'Trusted_Connection=yes;')
-
-    sql_conn = pyodbc.connect(conn_string)
+    sql_conn = pyodbc.connect(config['conn_string'])
 
     # dim table
     master_dim_df = pd.read_sql(

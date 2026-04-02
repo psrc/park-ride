@@ -2,20 +2,20 @@ import pandas as pd
 import os
 import pyodbc  # for Elmer connection
 
-def process_king_county_metro(year):
+def process_king_county_metro(config):
     """Process park & ride data from King County Metro Transit using current project year."""
 
     print('Begin processing King County Metro Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/King County/'
+    file_path = config['project_path'] + str(config['year']) + '/King County/'
     dir_list = os.listdir(file_path)
 
     # Read xlsx file in folder
     df = pd.read_excel(
         io=file_path + dir_list[0], sheet_name=0, usecols='A:D'
         )
-
+    
     # Generate year averages from monthly/quarterly values
     df = df.groupby(['Name'], as_index=False).agg(capacity = ('Total Capacity (# stalls)', 'mean'),
                                                   occupancy = ('Vehicle Count', 'mean'))
@@ -41,13 +41,7 @@ def process_king_county_metro(year):
     
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
-    conn_string = (
-        r'Driver=SQL Server;'
-        r'Server=SQLserver;'
-        r'Database=Elmer;'
-        r'Trusted_Connection=yes;')
-
-    sql_conn = pyodbc.connect(conn_string)
+    sql_conn = pyodbc.connect(config['conn_string'])
 
     # dim table
     master_dim_df = pd.read_sql(

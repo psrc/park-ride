@@ -1,7 +1,7 @@
 import pandas as pd
 import pyodbc  # for Elmer connection
 
-def combine_processed_data(table_list, year):
+def combine_processed_data(table_list, config):
     """Combines processed park & ride datasets and prepares for insertion into Elmer facts table."""
     
     # Only run if there are five datasets passed to the function
@@ -13,14 +13,7 @@ def combine_processed_data(table_list, year):
         df['name'] = df['name'].map(lambda x: x.strip())
         
         # Combine processed data with dim table from Elmer
-        conn_string = (
-            r'Driver=SQL Server;'
-            r'Server=SQLserver;'
-            r'Database=Elmer;'
-            r'Trusted_Connection=yes;'
-        )
-
-        sql_conn = pyodbc.connect(conn_string)
+        sql_conn = pyodbc.connect(config['conn_string'])
 
         # dim table
         master_dim_df = pd.read_sql(sql='select * from park_and_ride.lot_dim', con=sql_conn)
@@ -34,7 +27,10 @@ def combine_processed_data(table_list, year):
                           axis=1, inplace=True)
         
         # Add data year to final data
-        final_data.insert(0, 'data_year', year)
+        final_data.insert(0, 'data_year', config['year'])
+
+        # Convert data types
+        final_data = final_data.astype({'capacity': int, 'occupancy': int})
         
         # Check data
         owner_check = final_data.loc[:, ['agency', 'name', 'owner_status', 'ownership_status', 'lot_name']].sort_values('owner_status')

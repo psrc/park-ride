@@ -2,13 +2,13 @@ import pandas as pd
 import os
 import pyodbc
 
-def process_kitsap_transit(year):
+def process_kitsap_transit(config):
     """Process park & ride data from Kitsap Transit using current project year."""
     
     print('Begin processing Kitsap Transit park & ride data.')
     
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/Kitsap Transit/'
+    file_path = config['project_path'] + str(config['year']) + '/Kitsap Transit/'
     dir_list = os.listdir(file_path)
 
     # Create tuple of rows to remove from the data
@@ -52,13 +52,7 @@ def process_kitsap_transit(year):
     print('Connecting to Elmer to pull master data park and ride lots')
     
     # connect to master data
-    conn_string = (
-        r'Driver=SQL Server;'
-        r'Server=SQLserver;'
-        r'Database=Elmer;'
-        r'Trusted_Connection=yes;')
-
-    sql_conn = pyodbc.connect(conn_string)
+    sql_conn = pyodbc.connect(config['conn_string'])
 
     # dim table
     master_dim_df = pd.read_sql(

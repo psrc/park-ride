@@ -2,19 +2,18 @@ import pandas as pd
 import os
 import pyodbc  # for Elmer connection
 
-def process_community_transit(year):
+def process_community_transit(config):
     """Process park & ride data from Community Transit using current project year."""
 
     print('Begin processing Community Transit park & ride data.')
 
     # Assign path to agency in project folder; create list of files in folder
-    file_path = 'J:/Projects/Surveys/ParkRide/Data/' + str(year) + '/Community Transit/'
+    file_path = config['project_path'] + str(config['year']) + '/Community Transit/'
     dir_list = os.listdir(file_path)
 
     # Read xlsx file in folder
     df = pd.read_excel(
-        io=file_path + dir_list[0], sheet_name=0,
-        skipfooter=2)
+        io=file_path + dir_list[0], sheet_name=0)
 
     # Remove extra columns
     df.drop(['AVG Utilization', 'Owner', 'Maintenance'], axis=1, inplace=True)
@@ -29,12 +28,14 @@ def process_community_transit(year):
                'AVG Stall Count': 'capacity',
                'AVG Parked Vehicles': 'occupancy'},
               axis=1, inplace=True)
+    
+    # Round decimal values to whole numbers
+    df = df.round({'occupancy': 0})
 
     # Change ownership_status options
-    df['owner_status'].replace({'Major Park & Ride (>= 250 Parking Stalls)': 'permanent',
+    df['owner_status'] = df['owner_status'].replace({'Major Park & Ride (>= 250 Parking Stalls)': 'permanent',
                                 'Minor Park & Ride (<250 Stalls)': 'permanent',
-                                'Leased Lot': 'leased'},
-                               inplace=True)
+                                'Leased Lot': 'leased'})
     
     # Create notes column
     df['notes'] = None
@@ -51,13 +52,7 @@ def process_community_transit(year):
     
     print('Connecting to Elmer to pull master data park and ride lots')
     # connect to master data
-    conn_string = (
-        r'Driver=SQL Server;'
-        r'Server=SQLserver;'
-        r'Database=Elmer;'
-        r'Trusted_Connection=yes;')
-
-    sql_conn = pyodbc.connect(conn_string)
+    sql_conn = pyodbc.connect(config['conn_string'])
 
     # dim table
     master_dim_df = pd.read_sql(
