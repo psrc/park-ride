@@ -67,7 +67,7 @@ def process_community_transit(config):
                          left_on='lot_dim_id', right_on='lot_dim_id',
                          how="inner")
 
-    # filter lots in Community County from master df
+    # filter Community Transit lots from master df
     community_master = master_df[master_df['maintainer_agency'].isin(['Community Transit'])]
 
     # merge data frames - keep only the current records to determine which ones don't line up with the master list
